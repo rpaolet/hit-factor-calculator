@@ -112,12 +112,21 @@
                         </div>
                     </div>
 
-                    <!-- Input Tempo -->
+                    <!-- Input Tempo con Tasti Rapidi -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Tempo (Secondi)</label>
-                        <div class="relative">
+                        <div class="relative mb-2">
                             <input type="number" id="inputTempo" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-bold text-lg">
                             <span class="absolute right-4 top-3.5 text-xs text-slate-500 font-semibold">SEC</span>
+                        </div>
+                        <!-- Bottoni rapidi per secondi e frazioni -->
+                        <div class="grid grid-cols-6 gap-1.5">
+                            <button onclick="adjustTempo(-1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-bold text-xs py-2 rounded-lg">-1s</button>
+                            <button onclick="adjustTempo(1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-bold text-xs py-2 rounded-lg">+1s</button>
+                            <button onclick="adjustTempo(5)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-bold text-xs py-2 rounded-lg">+5s</button>
+                            <button onclick="adjustTempo(0.5)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-blue-400 font-bold text-xs py-2 rounded-lg">+0.5s</button>
+                            <button onclick="adjustTempo(0.1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-blue-400 font-bold text-xs py-2 rounded-lg">+0.1s</button>
+                            <button onclick="adjustTempo('reset')" type="button" class="bg-rose-950/60 hover:bg-rose-900/60 active:scale-95 text-rose-400 font-bold text-xs py-2 rounded-lg">C</button>
                         </div>
                     </div>
 
@@ -142,13 +151,28 @@
 
                 <div id="leaderboardList" class="space-y-2"></div>
 
-                <div class="pt-2 flex gap-2">
-                    <button onclick="shareWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
-                        <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
-                    </button>
-                    <button onclick="clearLeaderboard()" class="px-3 bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-400 text-xs font-semibold rounded-lg">
-                        Reset
-                    </button>
+                <div class="pt-2 flex flex-col gap-2">
+                    <div class="flex gap-2">
+                        <button onclick="shareWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                        </button>
+                        <button onclick="clearLeaderboard()" class="px-3 bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-400 text-xs font-semibold rounded-lg">
+                            Reset
+                        </button>
+                    </div>
+
+                    <!-- Pulsanti Salva e Carica Dati Backup -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="backupData()" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-download text-sm"></i> Salva Dati
+                        </button>
+
+                        <button onclick="document.getElementById('importFileInput').click()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-upload text-sm"></i> Carica Sessione
+                        </button>
+                        <!-- Input file nascosto per l'importazione -->
+                        <input type="file" id="importFileInput" accept=".json" onchange="importData(event)" class="hidden">
+                    </div>
                 </div>
             </section>
         </div>
@@ -464,6 +488,17 @@
             el.value = val;
         }
 
+        function adjustTempo(val) {
+            const el = document.getElementById('inputTempo');
+            if (val === 'reset') {
+                el.value = '';
+                return;
+            }
+            let current = parseFloat(el.value) || 0;
+            let res = Math.max(0, current + val);
+            el.value = res.toFixed(2);
+        }
+
         function getData() {
             return JSON.parse(localStorage.getItem('hf_data') || '[]');
         }
@@ -634,6 +669,61 @@
                 renderLeaderboard();
                 updateFilterOptions();
             }
+        }
+
+        function backupData() {
+            const backupObj = {
+                results: getData(),
+                shooters: getShooters(),
+                stages: getStages()
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+            
+            // Generazione formato data e ora corrente (es. 2026-11-01_16-23)
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const dateFormatted = `${yyyy}-${mm}-${dd}_${hh}-${min}`;
+
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `hit_factor_backup_${dateFormatted}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedObj = JSON.parse(e.target.result);
+                    if (confirm("Caricando questa sessione i dati attuali verranno sovrascritti. Continuare?")) {
+                        if (importedObj.results) localStorage.setItem('hf_data', JSON.stringify(importedObj.results));
+                        if (importedObj.shooters) localStorage.setItem('hf_shooters', JSON.stringify(importedObj.shooters));
+                        if (importedObj.stages) localStorage.setItem('hf_stages', JSON.stringify(importedObj.stages));
+
+                        // Aggiorna la vista UI
+                        renderStagesSelect();
+                        renderShootersSelect();
+                        renderLeaderboard();
+                        updateFilterOptions();
+                        alert("Sessione caricata con successo!");
+                    }
+                } catch (err) {
+                    alert("Errore durante il caricamento del file. Assicurati che sia un file JSON di backup valido.");
+                }
+            };
+            reader.readAsText(file);
+            // Reset dell'input per permettere di ricaricare lo stesso file in seguito se necessario
+            event.target.value = '';
         }
 
         function shareWhatsApp() {

@@ -76,7 +76,7 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="adjustVal('inputAlfa', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                                <input type="number" id="inputAlfa" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                                <input type="number" id="inputAlfa" value="0" min="0" inputmode="numeric" oninput="calculateRealtime()" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
                                 <button onclick="adjustVal('inputAlfa', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
                             </div>
                         </div>
@@ -88,7 +88,7 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="adjustVal('inputCharlie', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                                <input type="number" id="inputCharlie" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                                <input type="number" id="inputCharlie" value="0" min="0" inputmode="numeric" oninput="calculateRealtime()" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
                                 <button onclick="adjustVal('inputCharlie', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
                             </div>
                         </div>
@@ -100,7 +100,7 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="adjustVal('inputDelta', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                                <input type="number" id="inputDelta" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                                <input type="number" id="inputDelta" value="0" min="0" inputmode="numeric" oninput="calculateRealtime()" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
                                 <button onclick="adjustVal('inputDelta', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
                             </div>
                         </div>
@@ -112,7 +112,7 @@
                             </div>
                             <div class="flex items-center gap-2">
                                 <button onclick="adjustVal('inputMiss', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                                <input type="number" id="inputMiss" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                                <input type="number" id="inputMiss" value="0" min="0" inputmode="numeric" oninput="calculateRealtime()" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
                                 <button onclick="adjustVal('inputMiss', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
                             </div>
                         </div>
@@ -122,7 +122,7 @@
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Tempo (Secondi)</label>
                         <div class="relative mb-2">
-                            <input type="number" id="inputTempo" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-bold text-lg">
+                            <input type="number" id="inputTempo" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" oninput="calculateRealtime()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-bold text-lg">
                             <span class="absolute right-4 top-3.5 text-xs text-slate-500 font-semibold">SEC</span>
                         </div>
                         <!-- Bottoni rapidi per secondi e frazioni -->
@@ -133,6 +133,18 @@
                             <button onclick="adjustTempo(0.5)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-blue-400 font-bold text-xs py-2 rounded-lg">+0.5s</button>
                             <button onclick="adjustTempo(0.1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-blue-400 font-bold text-xs py-2 rounded-lg">+0.1s</button>
                             <button onclick="adjustTempo('reset')" type="button" class="bg-rose-950/60 hover:bg-rose-900/60 active:scale-95 text-rose-400 font-bold text-xs py-2 rounded-lg">C</button>
+                        </div>
+                    </div>
+
+                    <!-- BOX CALCOLO IN TEMPO REALE -->
+                    <div class="bg-slate-950 border border-slate-800 rounded-xl p-3 flex items-center justify-between">
+                        <div>
+                            <span class="text-[10px] uppercase font-bold text-slate-500 block">Punteggio Provvisorio</span>
+                            <span id="realtimePoints" class="text-sm font-bold text-slate-200">0 pt</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] uppercase font-bold text-slate-500 block">Hit Factor Stimato</span>
+                            <span id="realtimeHitFactor" class="text-base font-extrabold text-amber-400">0.0000</span>
                         </div>
                     </div>
 
@@ -497,17 +509,34 @@
             let val = parseInt(el.value) || 0;
             val = Math.max(0, val + delta);
             el.value = val;
+            calculateRealtime();
         }
 
         function adjustTempo(val) {
             const el = document.getElementById('inputTempo');
             if (val === 'reset') {
                 el.value = '';
+                calculateRealtime();
                 return;
             }
             let current = parseFloat(el.value) || 0;
             let res = Math.max(0, current + val);
             el.value = res.toFixed(2);
+            calculateRealtime();
+        }
+
+        function calculateRealtime() {
+            const alfa = parseInt(document.getElementById('inputAlfa').value) || 0;
+            const charlie = parseInt(document.getElementById('inputCharlie').value) || 0;
+            const delta = parseInt(document.getElementById('inputDelta').value) || 0;
+            const miss = parseInt(document.getElementById('inputMiss').value) || 0;
+            const tempo = parseFloat(document.getElementById('inputTempo').value) || 0;
+
+            const punti = (alfa * 5) + (charlie * 3) + (delta * 1) - (miss * 10);
+            const hitFactor = tempo > 0 ? punti / tempo : 0;
+
+            document.getElementById('realtimePoints').textContent = punti + ' pt';
+            document.getElementById('realtimeHitFactor').textContent = hitFactor.toFixed(4);
         }
 
         function getData() {
@@ -552,6 +581,7 @@
             document.getElementById('inputDelta').value = 0;
             document.getElementById('inputMiss').value = 0;
             document.getElementById('inputTempo').value = '';
+            calculateRealtime();
 
             // Passa automaticamente alla scheda classifica per mostrare il risultato registrato
             switchTab('classifica');
@@ -664,19 +694,20 @@
             const missVal = extractNumber(['miss', 'miz', 'fallito', 'fuori']);
             if (missVal !== null) document.getElementById('inputMiss').value = missVal;
 
-            // 4. Estrazione Tempo (es. "tempo 12.5" o "12 secondi e mezzo")
+            // 4. Estrazione Tempo
             const timeRegex = /(?:tempo|secondi|sec)\s*([\d]+[.,]?\d*)/i;
             const timeMatch = text.match(timeRegex);
             if (timeMatch) {
                 let parsedTime = parseFloat(timeMatch[1].replace(',', '.'));
                 document.getElementById('inputTempo').value = parsedTime.toFixed(2);
             } else {
-                // Tentativo generico di trovare un numero decimale se non preceduto da parole chiave di bersagli
                 const genericNumbers = text.match(/([\d]+[.,]\d+)/);
                 if (genericNumbers) {
                     document.getElementById('inputTempo').value = parseFloat(genericNumbers[1].replace(',', '.')).toFixed(2);
                 }
             }
+
+            calculateRealtime();
         }
 
         function renderLeaderboard() {
@@ -872,6 +903,7 @@
         renderShootersSelect();
         renderLeaderboard();
         updateFilterOptions();
+        calculateRealtime();
     </script>
 </body>
 </html>

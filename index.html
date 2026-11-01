@@ -15,20 +15,12 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen pb-24 select-none">
 
-    <!-- Header Stage -->
+    <!-- Header Semplificato (Senza Stage) -->
     <header class="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg">
         <div class="max-w-md mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-bullseye text-amber-500 text-xl"></i>
                 <h1 class="font-bold text-lg text-amber-400 leading-none">Hit Factor</h1>
-            </div>
-            <div class="flex items-center gap-1.5">
-                <select id="stageSelector" onchange="changeActiveStage()" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold rounded-lg px-2.5 py-1.5 text-xs focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <!-- Popolato dinamicamente -->
-                </select>
-                <button onclick="openManageStagesModal()" title="Gestisci Stage" class="bg-slate-800 hover:bg-slate-700 text-amber-400 border border-slate-700 p-1.5 rounded-lg text-xs font-bold transition-all flex items-center justify-center">
-                    <i class="fa-solid fa-gear"></i>
-                </button>
             </div>
         </div>
     </header>
@@ -48,6 +40,19 @@
                 </div>
 
                 <div class="space-y-4">
+                    <!-- SELEZIONE STAGE (Spostato qui dentro) -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold text-slate-300">Stage di Riferimento</label>
+                            <button onclick="openManageStagesModal()" class="text-[11px] font-semibold text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1">
+                                <i class="fa-solid fa-gear text-xs"></i> Gestisci Stage
+                            </button>
+                        </div>
+                        <select id="stageSelector" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-amber-400 font-bold focus:outline-none focus:border-amber-500 text-base">
+                            <!-- Popolato dinamicamente -->
+                        </select>
+                    </div>
+
                     <!-- Selezione / Aggiunta Nome Tiratore -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Nome Tiratore</label>
@@ -483,10 +488,6 @@
             localStorage.setItem('hf_data', JSON.stringify(data));
             renderLeaderboard();
             updateFilterOptions();
-        }
-
-        function changeActiveStage() {
-            renderLeaderboard();
         }
 
         function saveResult() {

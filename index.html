@@ -53,18 +53,12 @@
                         </select>
                     </div>
 
-                    <!-- Selezione / Aggiunta Nome Tiratore -->
+                    <!-- Selezione Nome Tiratore -->
                     <div>
                         <label class="block text-xs font-semibold text-slate-300 mb-1">Nome Tiratore</label>
-                        <select id="selectNome" onchange="handleNomeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-base">
+                        <select id="selectNome" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-base">
                             <!-- Popolato dinamicamente -->
                         </select>
-                        
-                        <!-- Campo di testo nascosto per nuovo tiratore -->
-                        <div id="containerNuovoNome" class="hidden mt-2 flex gap-2">
-                            <input type="text" id="inputNuovoNome" placeholder="Inserisci il nuovo nome" class="flex-1 bg-slate-950 border border-amber-500/50 rounded-xl px-4 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 text-sm">
-                            <button onclick="confirmNewShooter()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
-                        </div>
                     </div>
 
                     <!-- Griglia Punteggi Alfa, Charlie, Delta, Miss -->
@@ -233,6 +227,13 @@
                 </h3>
                 <button onclick="closeManageShootersModal()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-lg"></i></button>
             </div>
+
+            <!-- Inserisci Nuovo Tiratore -->
+            <div class="flex gap-2">
+                <input type="text" id="inputNuovoTiratoreModal" placeholder="Nome nuovo tiratore" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 text-sm">
+                <button onclick="confirmNewShooterFromModal()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
+            </div>
+
             <div id="shootersList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
             <div class="pt-2">
                 <button onclick="closeManageShootersModal()" class="w-full bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">Chiudi</button>
@@ -394,31 +395,15 @@
                 select.appendChild(opt);
             });
 
-            const newOpt = document.createElement('option');
-            newOpt.value = "__NEW__";
-            newOpt.textContent = "+ Aggiungi Nuovo Tiratore...";
-            select.appendChild(newOpt);
-
-            if (selectedShooter) {
+            if (selectedShooter && shooters.includes(selectedShooter)) {
                 select.value = selectedShooter;
             } else {
                 select.selectedIndex = 0;
             }
         }
 
-        function handleNomeChange() {
-            const select = document.getElementById('selectNome');
-            const container = document.getElementById('containerNuovoNome');
-            if (select.value === '__NEW__') {
-                container.classList.remove('hidden');
-                document.getElementById('inputNuovoNome').focus();
-            } else {
-                container.classList.add('hidden');
-            }
-        }
-
-        function confirmNewShooter() {
-            const input = document.getElementById('inputNuovoNome');
+        function confirmNewShooterFromModal() {
+            const input = document.getElementById('inputNuovoTiratoreModal');
             const nome = input.value.trim();
             if (!nome) { alert('Inserisci un nome valido'); return; }
 
@@ -426,11 +411,10 @@
             if (!shooters.includes(nome)) {
                 shooters.push(nome);
                 saveShooters(shooters);
+                renderShootersList();
             }
-            
-            renderShootersSelect(nome);
             input.value = '';
-            document.getElementById('containerNuovoNome').classList.add('hidden');
+            renderShootersSelect(nome);
         }
 
         function openManageShootersModal() {
@@ -494,8 +478,8 @@
             const selectNome = document.getElementById('selectNome');
             let nome = selectNome.value;
 
-            if (nome === '__NEW__' || !nome) {
-                alert('Seleziona o aggiungi prima un tiratore'); 
+            if (!nome) {
+                alert('Seleziona prima un tiratore'); 
                 return; 
             }
 
@@ -516,9 +500,7 @@
             data.push(entry);
             saveData(data);
 
-            // Reset form
-            renderShootersSelect();
-            document.getElementById('containerNuovoNome').classList.add('hidden');
+            // Reset form valori numerici
             document.getElementById('inputAlfa').value = 0;
             document.getElementById('inputCharlie').value = 0;
             document.getElementById('inputDelta').value = 0;

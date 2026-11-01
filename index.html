@@ -13,185 +13,165 @@
         input[type="number"] { -moz-appearance: textfield; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-24 select-none">
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-20 select-none">
 
-    <!-- Header Semplificato -->
+    <!-- Header Stage -->
     <header class="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg">
         <div class="max-w-md mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-bullseye text-amber-500 text-xl"></i>
                 <h1 class="font-bold text-lg text-amber-400 leading-none">Hit Factor</h1>
             </div>
+            <div class="flex items-center gap-2">
+                <span class="text-xs font-semibold text-slate-400">STAGE:</span>
+                <select id="stageSelector" onchange="changeActiveStage()" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
+                    <option value="Stage 1">Stage 1</option>
+                    <option value="Stage 2">Stage 2</option>
+                    <option value="Stage 3">Stage 3</option>
+                    <option value="Stage 4">Stage 4</option>
+                    <option value="Stage 5">Stage 5</option>
+                </select>
+            </div>
         </div>
     </header>
 
     <main class="max-w-md mx-auto p-4 space-y-6">
 
-        <!-- TAB 1: INSERIMENTO -->
-        <div id="tabInserimento" class="space-y-6">
-            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
-                <div class="flex items-center justify-between mb-4">
-                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-user-plus text-amber-500"></i> Nuovo Inserimento
-                    </h2>
-                    <button onclick="openManageShootersModal()" class="text-[11px] font-semibold text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1">
-                        <i class="fa-solid fa-users-gear text-xs"></i> Gestisci Tiratori
-                    </button>
-                </div>
+        <!-- Form Inserimento -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-between">
+                <span class="flex items-center gap-2">
+                    <i class="fa-solid fa-user-plus text-amber-500"></i> Nuovo Inserimento
+                </span>
+                <button onclick="openManageShootersModal()" class="text-slate-400 hover:text-amber-400 text-[11px] font-normal underline">
+                    Gestisci Tiratori
+                </button>
+            </h2>
 
-                <div class="space-y-4">
-                    <!-- SELEZIONE STAGE -->
-                    <div>
-                        <div class="flex items-center justify-between mb-1">
-                            <label class="block text-xs font-semibold text-slate-300">Stage di Riferimento</label>
-                            <button onclick="openManageStagesModal()" class="text-[11px] font-semibold text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1">
-                                <i class="fa-solid fa-gear text-xs"></i> Gestisci Stage
-                            </button>
-                        </div>
-                        <select id="stageSelector" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-amber-400 font-bold focus:outline-none focus:border-amber-500 text-base">
-                            <!-- Popolato dinamicamente -->
-                        </select>
-                    </div>
-
-                    <!-- Selezione Nome Tiratore -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Nome Tiratore</label>
-                        <select id="selectNome" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-base">
-                            <!-- Popolato dinamicamente -->
-                        </select>
-                    </div>
-
-                    <!-- Griglia Punteggi Alfa, Charlie, Delta, Miss -->
-                    <div class="grid grid-cols-2 gap-3">
-                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                            <div>
-                                <span class="text-xs font-bold text-emerald-400 block">ALFA</span>
-                                <span class="text-[10px] text-slate-500">+5 pt</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="adjustVal('inputAlfa', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                                <input type="number" id="inputAlfa" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
-                                <button onclick="adjustVal('inputAlfa', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                            <div>
-                                <span class="text-xs font-bold text-blue-400 block">CHARLIE</span>
-                                <span class="text-[10px] text-slate-500">+3 pt</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="adjustVal('inputCharlie', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                                <input type="number" id="inputCharlie" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
-                                <button onclick="adjustVal('inputCharlie', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                            <div>
-                                <span class="text-xs font-bold text-amber-400 block">DELTA</span>
-                                <span class="text-[10px] text-slate-500">+1 pt</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="adjustVal('inputDelta', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                                <input type="number" id="inputDelta" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
-                                <button onclick="adjustVal('inputDelta', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
-                            </div>
-                        </div>
-
-                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                            <div>
-                                <span class="text-xs font-bold text-rose-500 block">MISS</span>
-                                <span class="text-[10px] text-slate-500">-10 pt</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <button onclick="adjustVal('inputMiss', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                                <input type="number" id="inputMiss" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
-                                <button onclick="adjustVal('inputMiss', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Input Tempo con Tasti Rapidi -->
-                    <div>
-                        <label class="block text-xs font-semibold text-slate-300 mb-1">Tempo (Secondi)</label>
-                        <div class="relative mb-2">
-                            <input type="number" id="inputTempo" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-bold text-lg">
-                            <span class="absolute right-4 top-3.5 text-xs text-slate-500 font-semibold">SEC</span>
-                        </div>
-                        <!-- Bottoni rapidi per secondi e frazioni -->
-                        <div class="grid grid-cols-6 gap-1.5">
-                            <button onclick="adjustTempo(-1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-bold text-xs py-2 rounded-lg">-1s</button>
-                            <button onclick="adjustTempo(1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-bold text-xs py-2 rounded-lg">+1s</button>
-                            <button onclick="adjustTempo(5)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-bold text-xs py-2 rounded-lg">+5s</button>
-                            <button onclick="adjustTempo(0.5)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-blue-400 font-bold text-xs py-2 rounded-lg">+0.5s</button>
-                            <button onclick="adjustTempo(0.1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-blue-400 font-bold text-xs py-2 rounded-lg">+0.1s</button>
-                            <button onclick="adjustTempo('reset')" type="button" class="bg-rose-950/60 hover:bg-rose-900/60 active:scale-95 text-rose-400 font-bold text-xs py-2 rounded-lg">C</button>
-                        </div>
-                    </div>
-
-                    <button onclick="saveResult()" class="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-bold rounded-xl py-3.5 transition-all shadow-lg shadow-amber-500/20 text-base">
-                        <i class="fa-solid fa-plus-circle mr-1"></i> Registra Risultato
-                    </button>
-                </div>
-            </section>
-        </div>
-
-        <!-- TAB 2: CLASSIFICA -->
-        <div id="tabClassifica" class="space-y-6 hidden">
-            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                        <i class="fa-solid fa-trophy text-amber-500"></i> Classifica
-                    </h2>
-                    <select id="filterStage" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-300 rounded-lg px-2.5 py-1">
-                        <option value="ALL">Tutti gli Stage</option>
+            <div class="space-y-4">
+                <!-- Selezione / Aggiunta Nome Tiratore -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nome Tiratore</label>
+                    <select id="selectNome" onchange="handleNomeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-base">
+                        <!-- Popolato dinamicamente -->
                     </select>
-                </div>
-
-                <div id="leaderboardList" class="space-y-2"></div>
-
-                <div class="pt-2 flex flex-col gap-2">
-                    <div class="flex gap-2">
-                        <button onclick="shareWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
-                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
-                        </button>
-                        <button onclick="clearLeaderboard()" class="px-3 bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-400 text-xs font-semibold rounded-lg">
-                            Reset
-                        </button>
-                    </div>
-
-                    <!-- Pulsanti Salva e Carica Dati Backup -->
-                    <div class="grid grid-cols-2 gap-2">
-                        <button onclick="backupData()" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-download text-sm"></i> Salva Dati
-                        </button>
-
-                        <button onclick="document.getElementById('importFileInput').click()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
-                            <i class="fa-solid fa-upload text-sm"></i> Carica Sessione
-                        </button>
-                        <!-- Input file nascosto per l'importazione -->
-                        <input type="file" id="importFileInput" accept=".json" onchange="importData(event)" class="hidden">
+                    
+                    <!-- Campo di testo nascosto per nuovo tiratore -->
+                    <div id="containerNuovoNome" class="hidden mt-2 flex gap-2">
+                        <input type="text" id="inputNuovoNome" placeholder="Inserisci il nuovo nome" class="flex-1 bg-slate-950 border border-amber-500/50 rounded-xl px-4 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 text-sm">
+                        <button onclick="confirmNewShooter()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
                     </div>
                 </div>
-            </section>
-        </div>
 
+                <!-- Griglia Punteggi Alfa, Charlie, Delta, Miss -->
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-emerald-400 block">ALFA</span>
+                            <span class="text-[10px] text-slate-500">+5 pt</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="adjustVal('inputAlfa', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
+                            <input type="number" id="inputAlfa" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                            <button onclick="adjustVal('inputAlfa', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-blue-400 block">CHARLIE</span>
+                            <span class="text-[10px] text-slate-500">+3 pt</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="adjustVal('inputCharlie', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
+                            <input type="number" id="inputCharlie" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                            <button onclick="adjustVal('inputCharlie', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-amber-400 block">DELTA</span>
+                            <span class="text-[10px] text-slate-500">+1 pt</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="adjustVal('inputDelta', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
+                            <input type="number" id="inputDelta" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                            <button onclick="adjustVal('inputDelta', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                        <div>
+                            <span class="text-xs font-bold text-rose-500 block">MISS</span>
+                            <span class="text-[10px] text-slate-500">-10 pt</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <button onclick="adjustVal('inputMiss', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
+                            <input type="number" id="inputMiss" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                            <button onclick="adjustVal('inputMiss', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Input Tempo -->
+                <div>
+                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tempo (Secondi)</label>
+                    <div class="relative">
+                        <input type="number" id="inputTempo" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-bold text-lg">
+                        <span class="absolute right-4 top-3.5 text-xs text-slate-500 font-semibold">SEC</span>
+                    </div>
+                </div>
+
+                <button onclick="saveResult()" class="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-bold rounded-xl py-3.5 transition-all shadow-lg shadow-amber-500/20 text-base">
+                    <i class="fa-solid fa-plus-circle mr-1"></i> Registra Risultato
+                </button>
+            </div>
+        </section>
+
+        <!-- Classifica -->
+        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+            <div class="flex items-center justify-between">
+                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-trophy text-amber-500"></i> Classifica
+                </h2>
+                <select id="filterStage" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-300 rounded-lg px-2.5 py-1">
+                    <option value="ALL">Tutti gli Stage</option>
+                </select>
+            </div>
+
+            <div id="leaderboardList" class="space-y-2"></div>
+
+            <div class="pt-2 flex gap-2">
+                <button onclick="shareWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                </button>
+                <button onclick="clearLeaderboard()" class="px-3 bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-400 text-xs font-semibold rounded-lg">
+                    Reset
+                </button>
+            </div>
+        </section>
     </main>
 
-    <!-- Barra di Navigazione Tab Inferiore -->
-    <nav class="fixed bottom-0 left-0 right-0 z-20 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-6 py-2 shadow-lg">
-        <div class="max-w-md mx-auto flex justify-around">
-            <button onclick="switchTab('inserimento')" id="btnTabInserimento" class="flex flex-col items-center gap-1 py-1 px-4 text-amber-400 font-bold text-xs transition-colors">
-                <i class="fa-solid fa-pen-to-square text-lg"></i>
-                <span>Inserimento</span>
-            </button>
-            <button onclick="switchTab('classifica')" id="btnTabClassifica" class="flex flex-col items-center gap-1 py-1 px-4 text-slate-400 hover:text-slate-200 font-semibold text-xs transition-colors">
-                <i class="fa-solid fa-trophy text-lg"></i>
-                <span>Classifica</span>
-            </button>
+    <!-- Modal Gestione Tiratori -->
+    <div id="manageShootersModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-amber-400">Gestisci Tiratori</h3>
+                <button onclick="closeManageShootersModal()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            
+            <p class="text-xs text-slate-400">Elimina i tiratori che non ti servono più dalla lista:</p>
+            
+            <div id="manageShootersList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
+                <!-- Popolato dinamicamente -->
+            </div>
+
+            <div class="pt-2">
+                <button onclick="closeManageShootersModal()" class="w-full bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">Chiudi</button>
+            </div>
         </div>
-    </nav>
+    </div>
 
     <!-- Modal Modifica Risultato -->
     <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -242,162 +222,7 @@
         </div>
     </div>
 
-    <!-- Modal Gestione Tiratori -->
-    <div id="manageShootersModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-users-gear"></i> Gestisci Tiratori
-                </h3>
-                <button onclick="closeManageShootersModal()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <!-- Inserisci Nuovo Tiratore -->
-            <div class="flex gap-2">
-                <input type="text" id="inputNuovoTiratoreModal" placeholder="Nome nuovo tiratore" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 text-sm">
-                <button onclick="confirmNewShooterFromModal()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
-            </div>
-
-            <div id="shootersList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-            <div class="pt-2">
-                <button onclick="closeManageShootersModal()" class="w-full bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">Chiudi</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal Gestione Stage -->
-    <div id="manageStagesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-amber-400 flex items-center gap-2">
-                    <i class="fa-solid fa-layer-group"></i> Gestisci Stage
-                </h3>
-                <button onclick="closeManageStagesModal()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-
-            <!-- Inserisci Nuovo Stage -->
-            <div class="flex gap-2">
-                <input type="text" id="inputNuovoStage" placeholder="Es. Stage 6" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 text-sm">
-                <button onclick="confirmNewStage()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
-            </div>
-
-            <!-- Lista Stage -->
-            <div id="stagesList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
-
-            <div class="pt-2">
-                <button onclick="closeManageStagesModal()" class="w-full bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">Chiudi</button>
-            </div>
-        </div>
-    </div>
-
     <script>
-        // --- TAB MANAGEMENT ---
-        function switchTab(tabName) {
-            const tabIns = document.getElementById('tabInserimento');
-            const tabCla = document.getElementById('tabClassifica');
-            const btnIns = document.getElementById('btnTabInserimento');
-            const btnCla = document.getElementById('btnTabClassifica');
-
-            if (tabName === 'inserimento') {
-                tabIns.classList.remove('hidden');
-                tabCla.classList.add('hidden');
-                btnIns.className = 'flex flex-col items-center gap-1 py-1 px-4 text-amber-400 font-bold text-xs transition-colors';
-                btnCla.className = 'flex flex-col items-center gap-1 py-1 px-4 text-slate-400 hover:text-slate-200 font-semibold text-xs transition-colors';
-            } else {
-                tabIns.classList.add('hidden');
-                tabCla.classList.remove('hidden');
-                btnIns.className = 'flex flex-col items-center gap-1 py-1 px-4 text-slate-400 hover:text-slate-200 font-semibold text-xs transition-colors';
-                btnCla.className = 'flex flex-col items-center gap-1 py-1 px-4 text-amber-400 font-bold text-xs transition-colors';
-                renderLeaderboard();
-            }
-        }
-
-        // --- STAGES DATA LOGIC ---
-        function getStages() {
-            return JSON.parse(localStorage.getItem('hf_stages') || '["Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5"]');
-        }
-
-        function saveStages(stages) {
-            localStorage.setItem('hf_stages', JSON.stringify(stages));
-            renderStagesSelect();
-            updateFilterOptions();
-        }
-
-        function renderStagesSelect(selectedStage = null) {
-            const select = document.getElementById('stageSelector');
-            const currentVal = selectedStage || select.value;
-            const stages = getStages();
-
-            select.innerHTML = '';
-            stages.forEach(s => {
-                const opt = document.createElement('option');
-                opt.value = s;
-                opt.textContent = s;
-                select.appendChild(opt);
-            });
-
-            if (currentVal && stages.includes(currentVal)) {
-                select.value = currentVal;
-            }
-        }
-
-        function openManageStagesModal() {
-            renderStagesList();
-            document.getElementById('manageStagesModal').classList.remove('hidden');
-        }
-
-        function closeManageStagesModal() {
-            document.getElementById('manageStagesModal').classList.add('hidden');
-        }
-
-        function confirmNewStage() {
-            const input = document.getElementById('inputNuovoStage');
-            const newStage = input.value.trim();
-            if (!newStage) { alert('Inserisci un nome stage valido'); return; }
-
-            const stages = getStages();
-            if (!stages.includes(newStage)) {
-                stages.push(newStage);
-                saveStages(stages);
-                renderStagesSelect(newStage);
-                renderLeaderboard();
-            }
-            input.value = '';
-            renderStagesList();
-        }
-
-        function deleteStage(stageName) {
-            let stages = getStages();
-            if (stages.length <= 1) {
-                alert('Deve esserci almeno uno stage nella lista!');
-                return;
-            }
-            if (confirm(`Eliminare lo stage "${stageName}"?`)) {
-                stages = stages.filter(s => s !== stageName);
-                saveStages(stages);
-                renderStagesSelect();
-                renderStagesList();
-                renderLeaderboard();
-            }
-        }
-
-        function renderStagesList() {
-            const container = document.getElementById('stagesList');
-            const stages = getStages();
-            container.innerHTML = '';
-
-            stages.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-sm';
-                div.innerHTML = `
-                    <span class="font-medium text-slate-200">${s}</span>
-                    <button onclick="deleteStage('${s}')" class="text-slate-600 hover:text-rose-400 p-1 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
-                `;
-                container.appendChild(div);
-            });
-        }
-
-        // --- SHOOTERS DATA LOGIC ---
         function getShooters() {
             return JSON.parse(localStorage.getItem('hf_shooters') || '["Mario Rossi"]');
         }
@@ -419,15 +244,31 @@
                 select.appendChild(opt);
             });
 
-            if (selectedShooter && shooters.includes(selectedShooter)) {
+            const newOpt = document.createElement('option');
+            newOpt.value = "__NEW__";
+            newOpt.textContent = "+ Aggiungi Nuovo Tiratore...";
+            select.appendChild(newOpt);
+
+            if (selectedShooter) {
                 select.value = selectedShooter;
             } else {
                 select.selectedIndex = 0;
             }
         }
 
-        function confirmNewShooterFromModal() {
-            const input = document.getElementById('inputNuovoTiratoreModal');
+        function handleNomeChange() {
+            const select = document.getElementById('selectNome');
+            const container = document.getElementById('containerNuovoNome');
+            if (select.value === '__NEW__') {
+                container.classList.remove('hidden');
+                document.getElementById('inputNuovoNome').focus();
+            } else {
+                container.classList.add('hidden');
+            }
+        }
+
+        function confirmNewShooter() {
+            const input = document.getElementById('inputNuovoNome');
             const nome = input.value.trim();
             if (!nome) { alert('Inserisci un nome valido'); return; }
 
@@ -435,14 +276,15 @@
             if (!shooters.includes(nome)) {
                 shooters.push(nome);
                 saveShooters(shooters);
-                renderShootersList();
             }
-            input.value = '';
+            
             renderShootersSelect(nome);
+            input.value = '';
+            document.getElementById('containerNuovoNome').classList.add('hidden');
         }
 
         function openManageShootersModal() {
-            renderShootersList();
+            renderManageShootersList();
             document.getElementById('manageShootersModal').classList.remove('hidden');
         }
 
@@ -450,53 +292,42 @@
             document.getElementById('manageShootersModal').classList.add('hidden');
         }
 
-        function deleteShooter(shooterName) {
-            if (confirm(`Rimuovere "${shooterName}" dalla lista dei tiratori?`)) {
-                let shooters = getShooters();
-                shooters = shooters.filter(s => s !== shooterName);
-                saveShooters(shooters);
-                renderShootersList();
-            }
-        }
-
-        function renderShootersList() {
-            const container = document.getElementById('shootersList');
+        function renderManageShootersList() {
+            const listContainer = document.getElementById('manageShootersList');
             const shooters = getShooters();
-            container.innerHTML = '';
+            listContainer.innerHTML = '';
 
             if (shooters.length === 0) {
-                container.innerHTML = '<div class="text-center py-4 text-slate-600 text-xs">Nessun tiratore salvato</div>';
+                listContainer.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Nessun tiratore salvato</div>';
                 return;
             }
 
             shooters.forEach(s => {
-                const div = document.createElement('div');
-                div.className = 'bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-sm';
-                div.innerHTML = `
-                    <span class="font-medium text-slate-200">${s}</span>
-                    <button onclick="deleteShooter('${s}')" class="text-slate-600 hover:text-rose-400 p-1 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                const item = document.createElement('div');
+                item.className = 'bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between';
+                item.innerHTML = `
+                    <span class="text-sm font-medium text-slate-200">${s}</span>
+                    <button onclick="deleteShooter('${s}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
                 `;
-                container.appendChild(div);
+                listContainer.appendChild(item);
             });
         }
 
-        // --- CALCULATOR LOGIC ---
+        function deleteShooter(nome) {
+            if (confirm(`Vuoi rimuovere "${nome}" dalla lista dei tiratori?`)) {
+                let shooters = getShooters();
+                shooters = shooters.filter(s => s !== nome);
+                saveShooters(shooters);
+                renderManageShootersList();
+                renderShootersSelect();
+            }
+        }
+
         function adjustVal(id, delta) {
             const el = document.getElementById(id);
             let val = parseInt(el.value) || 0;
             val = Math.max(0, val + delta);
             el.value = val;
-        }
-
-        function adjustTempo(val) {
-            const el = document.getElementById('inputTempo');
-            if (val === 'reset') {
-                el.value = '';
-                return;
-            }
-            let current = parseFloat(el.value) || 0;
-            let res = Math.max(0, current + val);
-            el.value = res.toFixed(2);
         }
 
         function getData() {
@@ -509,12 +340,16 @@
             updateFilterOptions();
         }
 
+        function changeActiveStage() {
+            renderLeaderboard();
+        }
+
         function saveResult() {
             const selectNome = document.getElementById('selectNome');
             let nome = selectNome.value;
 
-            if (!nome) {
-                alert('Seleziona prima un tiratore'); 
+            if (nome === '__NEW__' || !nome) {
+                alert('Seleziona o aggiungi prima un tiratore'); 
                 return; 
             }
 
@@ -535,15 +370,14 @@
             data.push(entry);
             saveData(data);
 
-            // Reset form valori numerici
+            // Reset form
+            renderShootersSelect();
+            document.getElementById('containerNuovoNome').classList.add('hidden');
             document.getElementById('inputAlfa').value = 0;
             document.getElementById('inputCharlie').value = 0;
             document.getElementById('inputDelta').value = 0;
             document.getElementById('inputMiss').value = 0;
             document.getElementById('inputTempo').value = '';
-
-            // Passa automaticamente alla scheda classifica per mostrare il risultato registrato
-            switchTab('classifica');
         }
 
         function renderLeaderboard() {
@@ -594,12 +428,11 @@
         function updateFilterOptions() {
             const data = getData();
             const filter = document.getElementById('filterStage');
-            const dataStages = [...new Set(data.map(d => d.stage))];
-            const allStages = [...new Set([...getStages(), ...dataStages])];
+            const stages = [...new Set(data.map(d => d.stage))];
             
             const currentVal = filter.value;
             filter.innerHTML = '<option value="ALL">Tutti gli Stage</option>';
-            allStages.forEach(s => {
+            stages.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
                 opt.textContent = s;
@@ -671,61 +504,6 @@
             }
         }
 
-        function backupData() {
-            const backupObj = {
-                results: getData(),
-                shooters: getShooters(),
-                stages: getStages()
-            };
-            
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
-            
-            // Generazione formato data e ora corrente (es. 2026-11-01_16-23)
-            const now = new Date();
-            const yyyy = now.getFullYear();
-            const mm = String(now.getMonth() + 1).padStart(2, '0');
-            const dd = String(now.getDate()).padStart(2, '0');
-            const hh = String(now.getHours()).padStart(2, '0');
-            const min = String(now.getMinutes()).padStart(2, '0');
-            const dateFormatted = `${yyyy}-${mm}-${dd}_${hh}-${min}`;
-
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `hit_factor_backup_${dateFormatted}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
-        }
-
-        function importData(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-
-            const reader = new FileReader();
-            reader.onload = function(e) {
-                try {
-                    const importedObj = JSON.parse(e.target.result);
-                    if (confirm("Caricando questa sessione i dati attuali verranno sovrascritti. Continuare?")) {
-                        if (importedObj.results) localStorage.setItem('hf_data', JSON.stringify(importedObj.results));
-                        if (importedObj.shooters) localStorage.setItem('hf_shooters', JSON.stringify(importedObj.shooters));
-                        if (importedObj.stages) localStorage.setItem('hf_stages', JSON.stringify(importedObj.stages));
-
-                        // Aggiorna la vista UI
-                        renderStagesSelect();
-                        renderShootersSelect();
-                        renderLeaderboard();
-                        updateFilterOptions();
-                        alert("Sessione caricata con successo!");
-                    }
-                } catch (err) {
-                    alert("Errore durante il caricamento del file. Assicurati che sia un file JSON di backup valido.");
-                }
-            };
-            reader.readAsText(file);
-            // Reset dell'input per permettere di ricaricare lo stesso file in seguito se necessario
-            event.target.value = '';
-        }
-
         function shareWhatsApp() {
             let data = getData();
             if (data.length === 0) return;
@@ -738,7 +516,6 @@
         }
 
         // Inizializzazione
-        renderStagesSelect();
         renderShootersSelect();
         renderLeaderboard();
         updateFilterOptions();

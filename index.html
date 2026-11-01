@@ -11,167 +11,198 @@
         input[type="number"]::-webkit-inner-spin-button,
         input[type="number"]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
         input[type="number"] { -moz-appearance: textfield; }
+        @keyframes pulse-ring {
+            0% { transform: scale(0.95); opacity: 0.8; }
+            50% { transform: scale(1.1); opacity: 0.4; }
+            100% { transform: scale(0.95); opacity: 0.8; }
+        }
+        .mic-active { animation: pulse-ring 1.5s infinite; background-color: rgba(239, 68, 68, 0.2) !important; border-color: rgba(239, 68, 68, 0.8) !important; color: #ef4444 !important; }
     </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen pb-20 select-none">
+<body class="bg-slate-950 text-slate-100 min-h-screen pb-24 select-none">
 
-    <!-- Header Stage -->
+    <!-- Header Semplificato -->
     <header class="sticky top-0 z-20 bg-slate-900/95 backdrop-blur-md border-b border-slate-800 px-4 py-3 shadow-lg">
         <div class="max-w-md mx-auto flex items-center justify-between gap-2">
             <div class="flex items-center gap-2">
                 <i class="fa-solid fa-bullseye text-amber-500 text-xl"></i>
                 <h1 class="font-bold text-lg text-amber-400 leading-none">Hit Factor</h1>
             </div>
-            <div class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-slate-400">STAGE:</span>
-                <select id="stageSelector" onchange="changeActiveStage()" class="bg-slate-800 border border-slate-700 text-amber-400 font-bold rounded-lg px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500">
-                    <option value="Stage 1">Stage 1</option>
-                    <option value="Stage 2">Stage 2</option>
-                    <option value="Stage 3">Stage 3</option>
-                    <option value="Stage 4">Stage 4</option>
-                    <option value="Stage 5">Stage 5</option>
-                </select>
-            </div>
         </div>
     </header>
 
     <main class="max-w-md mx-auto p-4 space-y-6">
 
-        <!-- Form Inserimento -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
-            <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-4 flex items-center justify-between">
-                <span class="flex items-center gap-2">
-                    <i class="fa-solid fa-user-plus text-amber-500"></i> Nuovo Inserimento
-                </span>
-                <button onclick="openManageShootersModal()" class="text-slate-400 hover:text-amber-400 text-[11px] font-normal underline">
-                    Gestisci Tiratori
-                </button>
-            </h2>
+        <!-- TAB 1: INSERIMENTO -->
+        <div id="tabInserimento" class="space-y-6">
+            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl">
+                <div class="flex items-center justify-between mb-4">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-user-plus text-amber-500"></i> Nuovo Inserimento
+                    </h2>
+                    <button onclick="openManageShootersModal()" class="text-[11px] font-semibold text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1">
+                        <i class="fa-solid fa-users-gear text-xs"></i> Gestisci Tiratori
+                    </button>
+                </div>
 
-            <div class="space-y-4">
-                <!-- Selezione / Aggiunta Nome Tiratore -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Nome Tiratore</label>
-                    <select id="selectNome" onchange="handleNomeChange()" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-base">
-                        <!-- Popolato dinamicamente -->
+                <div class="space-y-4">
+                    <!-- SELEZIONE STAGE -->
+                    <div>
+                        <div class="flex items-center justify-between mb-1">
+                            <label class="block text-xs font-semibold text-slate-300">Stage di Riferimento</label>
+                            <button onclick="openManageStagesModal()" class="text-[11px] font-semibold text-slate-400 hover:text-amber-400 transition-colors flex items-center gap-1">
+                                <i class="fa-solid fa-gear text-xs"></i> Gestisci Stage
+                            </button>
+                        </div>
+                        <select id="stageSelector" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-amber-400 font-bold focus:outline-none focus:border-amber-500 text-base">
+                            <!-- Popolato dinamicamente -->
+                        </select>
+                    </div>
+
+                    <!-- Selezione Nome Tiratore -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Nome Tiratore</label>
+                        <select id="selectNome" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500 text-base">
+                            <!-- Popolato dinamicamente -->
+                        </select>
+                    </div>
+
+                    <!-- Griglia Punteggi Alfa, Charlie, Delta, Miss -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-emerald-400 block">ALFA</span>
+                                <span class="text-[10px] text-slate-500">+5 pt</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="adjustVal('inputAlfa', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
+                                <input type="number" id="inputAlfa" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                                <button onclick="adjustVal('inputAlfa', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-blue-400 block">CHARLIE</span>
+                                <span class="text-[10px] text-slate-500">+3 pt</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="adjustVal('inputCharlie', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
+                                <input type="number" id="inputCharlie" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                                <button onclick="adjustVal('inputCharlie', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-amber-400 block">DELTA</span>
+                                <span class="text-[10px] text-slate-500">+1 pt</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="adjustVal('inputDelta', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
+                                <input type="number" id="inputDelta" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                                <button onclick="adjustVal('inputDelta', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
+                            </div>
+                        </div>
+
+                        <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
+                            <div>
+                                <span class="text-xs font-bold text-rose-500 block">MISS</span>
+                                <span class="text-[10px] text-slate-500">-10 pt</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <button onclick="adjustVal('inputMiss', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
+                                <input type="number" id="inputMiss" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
+                                <button onclick="adjustVal('inputMiss', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Input Tempo con Tasti Rapidi -->
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 mb-1">Tempo (Secondi)</label>
+                        <div class="relative mb-2">
+                            <input type="number" id="inputTempo" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-bold text-lg">
+                            <span class="absolute right-4 top-3.5 text-xs text-slate-500 font-semibold">SEC</span>
+                        </div>
+                        <!-- Bottoni rapidi per secondi e frazioni -->
+                        <div class="grid grid-cols-6 gap-1.5">
+                            <button onclick="adjustTempo(-1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-slate-300 font-bold text-xs py-2 rounded-lg">-1s</button>
+                            <button onclick="adjustTempo(1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-bold text-xs py-2 rounded-lg">+1s</button>
+                            <button onclick="adjustTempo(5)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-amber-400 font-bold text-xs py-2 rounded-lg">+5s</button>
+                            <button onclick="adjustTempo(0.5)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-blue-400 font-bold text-xs py-2 rounded-lg">+0.5s</button>
+                            <button onclick="adjustTempo(0.1)" type="button" class="bg-slate-800 hover:bg-slate-700 active:scale-95 text-blue-400 font-bold text-xs py-2 rounded-lg">+0.1s</button>
+                            <button onclick="adjustTempo('reset')" type="button" class="bg-rose-950/60 hover:bg-rose-900/60 active:scale-95 text-rose-400 font-bold text-xs py-2 rounded-lg">C</button>
+                        </div>
+                    </div>
+
+                    <!-- Pulsante Comando Vocale -->
+                    <button id="btnVoice" onclick="toggleVoiceRecognition()" type="button" class="w-full bg-slate-800 hover:bg-slate-700 border border-slate-700 active:scale-[0.98] text-amber-400 font-bold rounded-xl py-3 transition-all flex items-center justify-center gap-2 text-sm">
+                        <i id="voiceIcon" class="fa-solid fa-microphone text-amber-500"></i> <span id="voiceText">Inserimento Vocale</span>
+                    </button>
+
+                    <button onclick="saveResult()" class="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-bold rounded-xl py-3.5 transition-all shadow-lg shadow-amber-500/20 text-base">
+                        <i class="fa-solid fa-plus-circle mr-1"></i> Registra Risultato
+                    </button>
+                </div>
+            </section>
+        </div>
+
+        <!-- TAB 2: CLASSIFICA -->
+        <div id="tabClassifica" class="space-y-6 hidden">
+            <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-trophy text-amber-500"></i> Classifica
+                    </h2>
+                    <select id="filterStage" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-300 rounded-lg px-2.5 py-1">
+                        <option value="ALL">Tutti gli Stage</option>
                     </select>
-                    
-                    <!-- Campo di testo nascosto per nuovo tiratore -->
-                    <div id="containerNuovoNome" class="hidden mt-2 flex gap-2">
-                        <input type="text" id="inputNuovoNome" placeholder="Inserisci il nuovo nome" class="flex-1 bg-slate-950 border border-amber-500/50 rounded-xl px-4 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 text-sm">
-                        <button onclick="confirmNewShooter()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
-                    </div>
                 </div>
 
-                <!-- Griglia Punteggi Alfa, Charlie, Delta, Miss -->
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-bold text-emerald-400 block">ALFA</span>
-                            <span class="text-[10px] text-slate-500">+5 pt</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="adjustVal('inputAlfa', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                            <input type="number" id="inputAlfa" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
-                            <button onclick="adjustVal('inputAlfa', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
-                        </div>
+                <div id="leaderboardList" class="space-y-2"></div>
+
+                <div class="pt-2 flex flex-col gap-2">
+                    <div class="flex gap-2">
+                        <button onclick="shareWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
+                            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
+                        </button>
+                        <button onclick="clearLeaderboard()" class="px-3 bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-400 text-xs font-semibold rounded-lg">
+                            Reset
+                        </button>
                     </div>
 
-                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-bold text-blue-400 block">CHARLIE</span>
-                            <span class="text-[10px] text-slate-500">+3 pt</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="adjustVal('inputCharlie', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                            <input type="number" id="inputCharlie" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
-                            <button onclick="adjustVal('inputCharlie', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
-                        </div>
-                    </div>
+                    <!-- Pulsanti Salva e Carica Dati Backup -->
+                    <div class="grid grid-cols-2 gap-2">
+                        <button onclick="backupData()" class="bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-download text-sm"></i> Salva Dati
+                        </button>
 
-                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-bold text-amber-400 block">DELTA</span>
-                            <span class="text-[10px] text-slate-500">+1 pt</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="adjustVal('inputDelta', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                            <input type="number" id="inputDelta" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
-                            <button onclick="adjustVal('inputDelta', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between">
-                        <div>
-                            <span class="text-xs font-bold text-rose-500 block">MISS</span>
-                            <span class="text-[10px] text-slate-500">-10 pt</span>
-                        </div>
-                        <div class="flex items-center gap-2">
-                            <button onclick="adjustVal('inputMiss', -1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">-</button>
-                            <input type="number" id="inputMiss" value="0" min="0" inputmode="numeric" class="w-10 text-center font-bold bg-transparent text-white focus:outline-none text-base">
-                            <button onclick="adjustVal('inputMiss', 1)" class="w-8 h-8 rounded-lg bg-slate-800 text-slate-300 font-bold active:bg-slate-700">+</button>
-                        </div>
+                        <button onclick="document.getElementById('importFileInput').click()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
+                            <i class="fa-solid fa-upload text-sm"></i> Carica Sessione
+                        </button>
+                        <!-- Input file nascosto per l'importazione -->
+                        <input type="file" id="importFileInput" accept=".json" onchange="importData(event)" class="hidden">
                     </div>
                 </div>
+            </section>
+        </div>
 
-                <!-- Input Tempo -->
-                <div>
-                    <label class="block text-xs font-semibold text-slate-300 mb-1">Tempo (Secondi)</label>
-                    <div class="relative">
-                        <input type="number" id="inputTempo" step="0.01" min="0.01" placeholder="0.00" inputmode="decimal" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 font-bold text-lg">
-                        <span class="absolute right-4 top-3.5 text-xs text-slate-500 font-semibold">SEC</span>
-                    </div>
-                </div>
-
-                <button onclick="saveResult()" class="w-full bg-amber-500 hover:bg-amber-400 active:scale-[0.98] text-slate-950 font-bold rounded-xl py-3.5 transition-all shadow-lg shadow-amber-500/20 text-base">
-                    <i class="fa-solid fa-plus-circle mr-1"></i> Registra Risultato
-                </button>
-            </div>
-        </section>
-
-        <!-- Classifica -->
-        <section class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
-            <div class="flex items-center justify-between">
-                <h2 class="text-xs font-bold text-slate-400 uppercase tracking-wider flex items-center gap-2">
-                    <i class="fa-solid fa-trophy text-amber-500"></i> Classifica
-                </h2>
-                <select id="filterStage" onchange="renderLeaderboard()" class="bg-slate-950 border border-slate-800 text-xs font-semibold text-slate-300 rounded-lg px-2.5 py-1">
-                    <option value="ALL">Tutti gli Stage</option>
-                </select>
-            </div>
-
-            <div id="leaderboardList" class="space-y-2"></div>
-
-            <div class="pt-2 flex gap-2">
-                <button onclick="shareWhatsApp()" class="flex-1 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs py-2.5 rounded-lg flex items-center justify-center gap-1.5">
-                    <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
-                </button>
-                <button onclick="clearLeaderboard()" class="px-3 bg-slate-800 hover:bg-rose-900/40 text-slate-400 hover:text-rose-400 text-xs font-semibold rounded-lg">
-                    Reset
-                </button>
-            </div>
-        </section>
     </main>
 
-    <!-- Modal Gestione Tiratori -->
-    <div id="manageShootersModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
-            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
-                <h3 class="font-bold text-amber-400">Gestisci Tiratori</h3>
-                <button onclick="closeManageShootersModal()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-lg"></i></button>
-            </div>
-            
-            <p class="text-xs text-slate-400">Elimina i tiratori che non ti servono più dalla lista:</p>
-            
-            <div id="manageShootersList" class="space-y-2 max-h-60 overflow-y-auto pr-1">
-                <!-- Popolato dinamicamente -->
-            </div>
-
-            <div class="pt-2">
-                <button onclick="closeManageShootersModal()" class="w-full bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">Chiudi</button>
-            </div>
+    <!-- Barra di Navigazione Tab Inferiore -->
+    <nav class="fixed bottom-0 left-0 right-0 z-20 bg-slate-900/95 backdrop-blur-md border-t border-slate-800 px-6 py-2 shadow-lg">
+        <div class="max-w-md mx-auto flex justify-around">
+            <button onclick="switchTab('inserimento')" id="btnTabInserimento" class="flex flex-col items-center gap-1 py-1 px-4 text-amber-400 font-bold text-xs transition-colors">
+                <i class="fa-solid fa-pen-to-square text-lg"></i>
+                <span>Inserimento</span>
+            </button>
+            <button onclick="switchTab('classifica')" id="btnTabClassifica" class="flex flex-col items-center gap-1 py-1 px-4 text-slate-400 hover:text-slate-200 font-semibold text-xs transition-colors">
+                <i class="fa-solid fa-trophy text-lg"></i>
+                <span>Classifica</span>
+            </button>
         </div>
-    </div>
+    </nav>
 
     <!-- Modal Modifica Risultato -->
     <div id="editModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
@@ -222,7 +253,162 @@
         </div>
     </div>
 
+    <!-- Modal Gestione Tiratori -->
+    <div id="manageShootersModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-users-gear"></i> Gestisci Tiratori
+                </h3>
+                <button onclick="closeManageShootersModal()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Inserisci Nuovo Tiratore -->
+            <div class="flex gap-2">
+                <input type="text" id="inputNuovoTiratoreModal" placeholder="Nome nuovo tiratore" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 text-sm">
+                <button onclick="confirmNewShooterFromModal()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
+            </div>
+
+            <div id="shootersList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+            <div class="pt-2">
+                <button onclick="closeManageShootersModal()" class="w-full bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Gestione Stage -->
+    <div id="manageStagesModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
+            <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                <h3 class="font-bold text-amber-400 flex items-center gap-2">
+                    <i class="fa-solid fa-layer-group"></i> Gestisci Stage
+                </h3>
+                <button onclick="closeManageStagesModal()" class="text-slate-500 hover:text-slate-300"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Inserisci Nuovo Stage -->
+            <div class="flex gap-2">
+                <input type="text" id="inputNuovoStage" placeholder="Es. Stage 6" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500 text-sm">
+                <button onclick="confirmNewStage()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
+            </div>
+
+            <!-- Lista Stage -->
+            <div id="stagesList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
+
+            <div class="pt-2">
+                <button onclick="closeManageStagesModal()" class="w-full bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">Chiudi</button>
+            </div>
+        </div>
+    </div>
+
     <script>
+        // --- TAB MANAGEMENT ---
+        function switchTab(tabName) {
+            const tabIns = document.getElementById('tabInserimento');
+            const tabCla = document.getElementById('tabClassifica');
+            const btnIns = document.getElementById('btnTabInserimento');
+            const btnCla = document.getElementById('btnTabClassifica');
+
+            if (tabName === 'inserimento') {
+                tabIns.classList.remove('hidden');
+                tabCla.classList.add('hidden');
+                btnIns.className = 'flex flex-col items-center gap-1 py-1 px-4 text-amber-400 font-bold text-xs transition-colors';
+                btnCla.className = 'flex flex-col items-center gap-1 py-1 px-4 text-slate-400 hover:text-slate-200 font-semibold text-xs transition-colors';
+            } else {
+                tabIns.classList.add('hidden');
+                tabCla.classList.remove('hidden');
+                btnIns.className = 'flex flex-col items-center gap-1 py-1 px-4 text-slate-400 hover:text-slate-200 font-semibold text-xs transition-colors';
+                btnCla.className = 'flex flex-col items-center gap-1 py-1 px-4 text-amber-400 font-bold text-xs transition-colors';
+                renderLeaderboard();
+            }
+        }
+
+        // --- STAGES DATA LOGIC ---
+        function getStages() {
+            return JSON.parse(localStorage.getItem('hf_stages') || '["Stage 1", "Stage 2", "Stage 3", "Stage 4", "Stage 5"]');
+        }
+
+        function saveStages(stages) {
+            localStorage.setItem('hf_stages', JSON.stringify(stages));
+            renderStagesSelect();
+            updateFilterOptions();
+        }
+
+        function renderStagesSelect(selectedStage = null) {
+            const select = document.getElementById('stageSelector');
+            const currentVal = selectedStage || select.value;
+            const stages = getStages();
+
+            select.innerHTML = '';
+            stages.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s;
+                opt.textContent = s;
+                select.appendChild(opt);
+            });
+
+            if (currentVal && stages.includes(currentVal)) {
+                select.value = currentVal;
+            }
+        }
+
+        function openManageStagesModal() {
+            renderStagesList();
+            document.getElementById('manageStagesModal').classList.remove('hidden');
+        }
+
+        function closeManageStagesModal() {
+            document.getElementById('manageStagesModal').classList.add('hidden');
+        }
+
+        function confirmNewStage() {
+            const input = document.getElementById('inputNuovoStage');
+            const newStage = input.value.trim();
+            if (!newStage) { alert('Inserisci un nome stage valido'); return; }
+
+            const stages = getStages();
+            if (!stages.includes(newStage)) {
+                stages.push(newStage);
+                saveStages(stages);
+                renderStagesSelect(newStage);
+                renderLeaderboard();
+            }
+            input.value = '';
+            renderStagesList();
+        }
+
+        function deleteStage(stageName) {
+            let stages = getStages();
+            if (stages.length <= 1) {
+                alert('Deve esserci almeno uno stage nella lista!');
+                return;
+            }
+            if (confirm(`Eliminare lo stage "${stageName}"?`)) {
+                stages = stages.filter(s => s !== stageName);
+                saveStages(stages);
+                renderStagesSelect();
+                renderStagesList();
+                renderLeaderboard();
+            }
+        }
+
+        function renderStagesList() {
+            const container = document.getElementById('stagesList');
+            const stages = getStages();
+            container.innerHTML = '';
+
+            stages.forEach(s => {
+                const div = document.createElement('div');
+                div.className = 'bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-sm';
+                div.innerHTML = `
+                    <span class="font-medium text-slate-200">${s}</span>
+                    <button onclick="deleteStage('${s}')" class="text-slate-600 hover:text-rose-400 p-1 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // --- SHOOTERS DATA LOGIC ---
         function getShooters() {
             return JSON.parse(localStorage.getItem('hf_shooters') || '["Mario Rossi"]');
         }
@@ -244,31 +430,15 @@
                 select.appendChild(opt);
             });
 
-            const newOpt = document.createElement('option');
-            newOpt.value = "__NEW__";
-            newOpt.textContent = "+ Aggiungi Nuovo Tiratore...";
-            select.appendChild(newOpt);
-
-            if (selectedShooter) {
+            if (selectedShooter && shooters.includes(selectedShooter)) {
                 select.value = selectedShooter;
             } else {
                 select.selectedIndex = 0;
             }
         }
 
-        function handleNomeChange() {
-            const select = document.getElementById('selectNome');
-            const container = document.getElementById('containerNuovoNome');
-            if (select.value === '__NEW__') {
-                container.classList.remove('hidden');
-                document.getElementById('inputNuovoNome').focus();
-            } else {
-                container.classList.add('hidden');
-            }
-        }
-
-        function confirmNewShooter() {
-            const input = document.getElementById('inputNuovoNome');
+        function confirmNewShooterFromModal() {
+            const input = document.getElementById('inputNuovoTiratoreModal');
             const nome = input.value.trim();
             if (!nome) { alert('Inserisci un nome valido'); return; }
 
@@ -276,15 +446,14 @@
             if (!shooters.includes(nome)) {
                 shooters.push(nome);
                 saveShooters(shooters);
+                renderShootersList();
             }
-            
-            renderShootersSelect(nome);
             input.value = '';
-            document.getElementById('containerNuovoNome').classList.add('hidden');
+            renderShootersSelect(nome);
         }
 
         function openManageShootersModal() {
-            renderManageShootersList();
+            renderShootersList();
             document.getElementById('manageShootersModal').classList.remove('hidden');
         }
 
@@ -292,42 +461,53 @@
             document.getElementById('manageShootersModal').classList.add('hidden');
         }
 
-        function renderManageShootersList() {
-            const listContainer = document.getElementById('manageShootersList');
+        function deleteShooter(shooterName) {
+            if (confirm(`Rimuovere "${shooterName}" dalla lista dei tiratori?`)) {
+                let shooters = getShooters();
+                shooters = shooters.filter(s => s !== shooterName);
+                saveShooters(shooters);
+                renderShootersList();
+            }
+        }
+
+        function renderShootersList() {
+            const container = document.getElementById('shootersList');
             const shooters = getShooters();
-            listContainer.innerHTML = '';
+            container.innerHTML = '';
 
             if (shooters.length === 0) {
-                listContainer.innerHTML = '<div class="text-center py-4 text-slate-500 text-xs">Nessun tiratore salvato</div>';
+                container.innerHTML = '<div class="text-center py-4 text-slate-600 text-xs">Nessun tiratore salvato</div>';
                 return;
             }
 
             shooters.forEach(s => {
-                const item = document.createElement('div');
-                item.className = 'bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between';
-                item.innerHTML = `
-                    <span class="text-sm font-medium text-slate-200">${s}</span>
-                    <button onclick="deleteShooter('${s}')" class="text-slate-500 hover:text-rose-400 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
+                const div = document.createElement('div');
+                div.className = 'bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-sm';
+                div.innerHTML = `
+                    <span class="font-medium text-slate-200">${s}</span>
+                    <button onclick="deleteShooter('${s}')" class="text-slate-600 hover:text-rose-400 p-1 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
                 `;
-                listContainer.appendChild(item);
+                container.appendChild(div);
             });
         }
 
-        function deleteShooter(nome) {
-            if (confirm(`Vuoi rimuovere "${nome}" dalla lista dei tiratori?`)) {
-                let shooters = getShooters();
-                shooters = shooters.filter(s => s !== nome);
-                saveShooters(shooters);
-                renderManageShootersList();
-                renderShootersSelect();
-            }
-        }
-
+        // --- CALCULATOR LOGIC ---
         function adjustVal(id, delta) {
             const el = document.getElementById(id);
             let val = parseInt(el.value) || 0;
             val = Math.max(0, val + delta);
             el.value = val;
+        }
+
+        function adjustTempo(val) {
+            const el = document.getElementById('inputTempo');
+            if (val === 'reset') {
+                el.value = '';
+                return;
+            }
+            let current = parseFloat(el.value) || 0;
+            let res = Math.max(0, current + val);
+            el.value = res.toFixed(2);
         }
 
         function getData() {
@@ -340,16 +520,12 @@
             updateFilterOptions();
         }
 
-        function changeActiveStage() {
-            renderLeaderboard();
-        }
-
         function saveResult() {
             const selectNome = document.getElementById('selectNome');
             let nome = selectNome.value;
 
-            if (nome === '__NEW__' || !nome) {
-                alert('Seleziona o aggiungi prima un tiratore'); 
+            if (!nome) {
+                alert('Seleziona prima un tiratore'); 
                 return; 
             }
 
@@ -370,14 +546,137 @@
             data.push(entry);
             saveData(data);
 
-            // Reset form
-            renderShootersSelect();
-            document.getElementById('containerNuovoNome').classList.add('hidden');
+            // Reset form valori numerici
             document.getElementById('inputAlfa').value = 0;
             document.getElementById('inputCharlie').value = 0;
             document.getElementById('inputDelta').value = 0;
             document.getElementById('inputMiss').value = 0;
             document.getElementById('inputTempo').value = '';
+
+            // Passa automaticamente alla scheda classifica per mostrare il risultato registrato
+            switchTab('classifica');
+        }
+
+        // --- VOICE RECOGNITION LOGIC ---
+        let recognition = null;
+        let isListening = false;
+
+        function toggleVoiceRecognition() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                alert("Il tuo browser non supporta il riconoscimento vocale.");
+                return;
+            }
+
+            const btn = document.getElementById('btnVoice');
+            const icon = document.getElementById('voiceIcon');
+            const text = document.getElementById('voiceText');
+
+            if (isListening) {
+                if (recognition) recognition.stop();
+                return;
+            }
+
+            recognition = new SpeechRecognition();
+            recognition.lang = 'it-IT';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = function() {
+                isListening = true;
+                btn.classList.add('mic-active');
+                icon.className = "fa-solid fa-microphone-slash text-rose-500";
+                text.textContent = "Ascolto in corso...";
+            };
+
+            recognition.onresult = function(event) {
+                const speechToText = event.results[0][0].transcript.toLowerCase();
+                parseVoiceCommand(speechToText);
+            };
+
+            recognition.onerror = function(event) {
+                console.error("Errore riconoscimento vocale:", event.error);
+                stopVoiceUI();
+            };
+
+            recognition.onend = function() {
+                stopVoiceUI();
+            };
+
+            recognition.start();
+        }
+
+        function stopVoiceUI() {
+            isListening = false;
+            const btn = document.getElementById('btnVoice');
+            const icon = document.getElementById('voiceIcon');
+            const text = document.getElementById('voiceText');
+            if(btn) {
+                btn.classList.remove('mic-active');
+                icon.className = "fa-solid fa-microphone text-amber-500";
+                text.textContent = "Inserimento Vocale";
+            }
+        }
+
+        function parseVoiceCommand(text) {
+            console.log("Comando vocale ricevuto:", text);
+            
+            // 1. Cerca Tiratore
+            const shooters = getShooters();
+            for (let s of shooters) {
+                if (text.includes(s.toLowerCase())) {
+                    document.getElementById('selectNome').value = s;
+                    break;
+                }
+            }
+
+            // 2. Cerca Stage
+            const stages = getStages();
+            for (let st of stages) {
+                if (text.includes(st.toLowerCase()) || text.includes(st.toLowerCase().replace(" ", ""))) {
+                    document.getElementById('stageSelector').value = st;
+                    break;
+                }
+            }
+
+            // Funzione di supporto per estrarre numeri vicini a una parola chiave
+            function extractNumber(keywords) {
+                for (let kw of keywords) {
+                    const regex = new RegExp(`(\\d+)\\s*(?:${kw})|(?:${kw})\\s*(\\d+)`, 'i');
+                    const match = text.match(regex);
+                    if (match) {
+                        return parseInt(match[1] || match[2]);
+                    }
+                }
+                return null;
+            }
+
+            // 3. Estrazione Alfa, Charlie, Delta, Miss
+            const alfaVal = extractNumber(['alfa', 'alfe', 'alfaa']);
+            if (alfaVal !== null) document.getElementById('inputAlfa').value = alfaVal;
+
+            const charlieVal = extractNumber(['charlie', 'charli', 'ciarli']);
+            if (charlieVal !== null) document.getElementById('inputCharlie').value = charlieVal;
+
+            const deltaVal = extractNumber(['delta', 'deltha']);
+            if (deltaVal !== null) document.getElementById('inputDelta').value = deltaVal;
+
+            const missVal = extractNumber(['miss', 'miz', 'fallito', 'fuori']);
+            if (missVal !== null) document.getElementById('inputMiss').value = missVal;
+
+            // 4. Estrazione Tempo (es. "tempo 12.5" o "12 secondi e mezzo")
+            const timeRegex = /(?:tempo|secondi|sec)\s*([\d]+[.,]?\d*)/i;
+            const timeMatch = text.match(timeRegex);
+            if (timeMatch) {
+                let parsedTime = parseFloat(timeMatch[1].replace(',', '.'));
+                document.getElementById('inputTempo').value = parsedTime.toFixed(2);
+            } else {
+                // Tentativo generico di trovare un numero decimale se non preceduto da parole chiave di bersagli
+                const genericNumbers = text.match(/([\d]+[.,]\d+)/);
+                if (genericNumbers) {
+                    document.getElementById('inputTempo').value = parseFloat(genericNumbers[1].replace(',', '.')).toFixed(2);
+                }
+            }
         }
 
         function renderLeaderboard() {
@@ -428,11 +727,12 @@
         function updateFilterOptions() {
             const data = getData();
             const filter = document.getElementById('filterStage');
-            const stages = [...new Set(data.map(d => d.stage))];
+            const dataStages = [...new Set(data.map(d => d.stage))];
+            const allStages = [...new Set([...getStages(), ...dataStages])];
             
             const currentVal = filter.value;
             filter.innerHTML = '<option value="ALL">Tutti gli Stage</option>';
-            stages.forEach(s => {
+            allStages.forEach(s => {
                 const opt = document.createElement('option');
                 opt.value = s;
                 opt.textContent = s;
@@ -504,6 +804,58 @@
             }
         }
 
+        function backupData() {
+            const backupObj = {
+                results: getData(),
+                shooters: getShooters(),
+                stages: getStages()
+            };
+            
+            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupObj, null, 2));
+            
+            const now = new Date();
+            const yyyy = now.getFullYear();
+            const mm = String(now.getMonth() + 1).padStart(2, '0');
+            const dd = String(now.getDate()).padStart(2, '0');
+            const hh = String(now.getHours()).padStart(2, '0');
+            const min = String(now.getMinutes()).padStart(2, '0');
+            const dateFormatted = `${yyyy}-${mm}-${dd}_${hh}-${min}`;
+
+            const downloadAnchor = document.createElement('a');
+            downloadAnchor.setAttribute("href", dataStr);
+            downloadAnchor.setAttribute("download", `hit_factor_backup_${dateFormatted}.json`);
+            document.body.appendChild(downloadAnchor);
+            downloadAnchor.click();
+            downloadAnchor.remove();
+        }
+
+        function importData(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importedObj = JSON.parse(e.target.result);
+                    if (confirm("Caricando questa sessione i dati attuali verranno sovrascritti. Continuare?")) {
+                        if (importedObj.results) localStorage.setItem('hf_data', JSON.stringify(importedObj.results));
+                        if (importedObj.shooters) localStorage.setItem('hf_shooters', JSON.stringify(importedObj.shooters));
+                        if (importedObj.stages) localStorage.setItem('hf_stages', JSON.stringify(importedObj.stages));
+
+                        renderStagesSelect();
+                        renderShootersSelect();
+                        renderLeaderboard();
+                        updateFilterOptions();
+                        alert("Sessione caricata con successo!");
+                    }
+                } catch (err) {
+                    alert("Errore durante il caricamento del file. Assicurati che sia un file JSON di backup valido.");
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
         function shareWhatsApp() {
             let data = getData();
             if (data.length === 0) return;
@@ -516,6 +868,7 @@
         }
 
         // Inizializzazione
+        renderStagesSelect();
         renderShootersSelect();
         renderLeaderboard();
         updateFilterOptions();

@@ -402,7 +402,7 @@
 
         function editStage(oldName) {
             const newName = prompt("Modifica il nome dello stage:", oldName);
-            if (newName === null) return; // Annullato
+            if (newName === null) return;
 
             const trimmedName = newName.trim();
             if (!trimmedName) {
@@ -416,11 +416,9 @@
                 return;
             }
 
-            // 1. Aggiorna la lista degli stage
             stages = stages.map(s => s === oldName ? trimmedName : s);
             saveStages(stages);
 
-            // 2. Aggiorna anche i risultati salvati che facevano riferimento a questo stage
             let data = getData();
             let dataUpdated = false;
             data.forEach(item => {
@@ -664,7 +662,6 @@
             data.push(entry);
             saveData(data);
 
-            // Reset form valori numerici
             document.getElementById('inputAlfa').value = 0;
             document.getElementById('inputCharlie').value = 0;
             document.getElementById('inputDelta').value = 0;
@@ -672,7 +669,6 @@
             document.getElementById('inputTempo').value = '';
             calculateRealtime();
 
-            // Passa automaticamente alla scheda classifica per mostrare il risultato registrato
             switchTab('classifica');
         }
 
@@ -738,9 +734,6 @@
         }
 
         function parseVoiceCommand(text) {
-            console.log("Comando vocale ricevuto:", text);
-            
-            // 1. Cerca Tiratore
             const shooters = getShooters();
             for (let s of shooters) {
                 if (text.includes(s.toLowerCase())) {
@@ -749,7 +742,6 @@
                 }
             }
 
-            // 2. Cerca Stage
             const stages = getStages();
             for (let st of stages) {
                 if (text.includes(st.toLowerCase()) || text.includes(st.toLowerCase().replace(" ", ""))) {
@@ -813,31 +805,47 @@
                 return;
             }
 
-            data.forEach((item, index) => {
-                const card = document.createElement('div');
-                card.className = `bg-slate-950 border ${index === 0 ? 'border-amber-500/50' : 'border-slate-800'} p-3 rounded-xl flex items-center justify-between`;
-                card.innerHTML = `
-                    <div class="flex items-center gap-3">
-                        <span class="w-6 h-6 rounded-full ${index === 0 ? 'bg-amber-500 text-slate-950' : 'bg-slate-800 text-slate-400'} text-xs font-bold flex items-center justify-center">${index + 1}</span>
-                        <div>
-                            <div class="font-bold text-sm text-slate-200">${item.nome}</div>
-                            <div class="text-[10px] text-slate-500 flex gap-2">
-                                <span>${item.stage}</span>
-                                <span>A:${item.alfa} C:${item.charlie} D:${item.delta} M:${item.miss}</span>
-                                <span>${item.tempo.toFixed(2)}s</span>
+            // Raggruppamento per Data
+            const grouped = {};
+            data.forEach(item => {
+                const dObj = item.id ? new Date(item.id) : new Date();
+                const dateKey = dObj.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                if (!grouped[dateKey]) grouped[dateKey] = [];
+                grouped[dateKey].push(item);
+            });
+
+            Object.keys(grouped).forEach(dateKey => {
+                const dateHeader = document.createElement('div');
+                dateHeader.className = 'text-xs font-bold text-amber-500 uppercase tracking-wider pt-2 pb-1 flex items-center gap-1.5 border-b border-slate-800/60 mb-2';
+                dateHeader.innerHTML = `<i class="fa-regular fa-calendar-days"></i> ${dateKey}`;
+                list.appendChild(dateHeader);
+
+                grouped[dateKey].forEach((item, index) => {
+                    const card = document.createElement('div');
+                    card.className = `bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center justify-between mb-2`;
+                    card.innerHTML = `
+                        <div class="flex items-center gap-3">
+                            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center">${index + 1}</span>
+                            <div>
+                                <div class="font-bold text-sm text-slate-200">${item.nome}</div>
+                                <div class="text-[10px] text-slate-500 flex gap-2">
+                                    <span>${item.stage}</span>
+                                    <span>A:${item.alfa} C:${item.charlie} D:${item.delta} M:${item.miss}</span>
+                                    <span>${item.tempo.toFixed(2)}s</span>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="flex items-center gap-3">
-                        <div class="text-right">
-                            <div class="text-sm font-extrabold text-amber-400">${item.hitFactor.toFixed(4)}</div>
-                            <div class="text-[10px] text-slate-500">${item.punti} pt</div>
+                        <div class="flex items-center gap-3">
+                            <div class="text-right">
+                                <div class="text-sm font-extrabold text-amber-400">${item.hitFactor.toFixed(4)}</div>
+                                <div class="text-[10px] text-slate-500">${item.punti} pt</div>
+                            </div>
+                            <button onclick="openEditModal(${item.id})" class="text-slate-600 hover:text-amber-400 p-1"><i class="fa-solid fa-pen text-xs"></i></button>
+                            <button onclick="deleteEntry(${item.id})" class="text-slate-600 hover:text-rose-400 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
                         </div>
-                        <button onclick="openEditModal(${item.id})" class="text-slate-600 hover:text-amber-400 p-1"><i class="fa-solid fa-pen text-xs"></i></button>
-                        <button onclick="deleteEntry(${item.id})" class="text-slate-600 hover:text-rose-400 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
-                    </div>
-                `;
-                list.appendChild(card);
+                    `;
+                    list.appendChild(card);
+                });
             });
         }
 
@@ -868,7 +876,6 @@
             document.getElementById('editNome').value = item.nome;
             document.getElementById('editAlfa').value = item.alfa;
             document.getElementById('editCharlie').value = item.charlie;
-            document.getElementById('editDict').value = item.delta; // not used, fix below
             document.getElementById('editDelta').value = item.delta;
             document.getElementById('editMiss').value = item.miss;
             document.getElementById('editTempo').value = item.tempo;
@@ -955,28 +962,15 @@
             reader.onload = function(e) {
                 try {
                     const importedObj = JSON.parse(e.target.result);
-                    if (confirm("Vuoi caricare questa sessione? I nuovi tiratori e stage verranno aggiunti a quelli esistenti.")) {
+                    if (confirm("Vuoi caricare i risultati di questa sessione? I tiratori e gli stage attuali rimarranno invariati.")) {
+                        // Carica SOLO i risultati, senza sovrascrivere o unire tiratori e stage locali
                         if (importedObj.results) {
                             localStorage.setItem('hf_data', JSON.stringify(importedObj.results));
                         }
 
-                        if (importedObj.shooters && Array.isArray(importedObj.shooters)) {
-                            const currentShooters = getShooters();
-                            const mergedShooters = [...new Set([...currentShooters, ...importedObj.shooters])];
-                            localStorage.setItem('hf_shooters', JSON.stringify(mergedShooters));
-                        }
-
-                        if (importedObj.stages && Array.isArray(importedObj.stages)) {
-                            const currentStages = getStages();
-                            const mergedStages = [...new Set([...currentStages, ...importedObj.stages])];
-                            localStorage.setItem('hf_stages', JSON.stringify(mergedStages));
-                        }
-
-                        renderStagesSelect();
-                        renderShootersSelect();
                         renderLeaderboard();
                         updateFilterOptions();
-                        alert("Sessione caricata con successo!");
+                        alert("Risultati caricati con successo!");
                     }
                 } catch (err) {
                     alert("Errore durante il caricamento del file. Assicurati che sia un file JSON di backup valido.");

@@ -172,6 +172,17 @@
                     </select>
                 </div>
 
+                <!-- Controlli di selezione multipla per i risultati -->
+                <div class="flex items-center justify-between text-xs text-slate-400 bg-slate-950 border border-slate-800 p-2.5 rounded-xl">
+                    <label class="flex items-center gap-2 cursor-pointer hover:text-slate-200">
+                        <input type="checkbox" id="selectAllResults" onclick="toggleSelectAllResults(this)" class="w-4 h-4 rounded bg-slate-900 border-slate-800 text-amber-500 focus:ring-0 cursor-pointer">
+                        <span>Seleziona tutti</span>
+                    </label>
+                    <button onclick="deleteSelectedResults()" class="bg-rose-950/60 hover:bg-rose-900/60 text-rose-400 font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                        <i class="fa-solid fa-trash-can text-xs"></i> Elimina selezionati
+                    </button>
+                </div>
+
                 <div id="leaderboardList" class="space-y-2"></div>
 
                 <div class="pt-2 flex flex-col gap-2">
@@ -788,6 +799,42 @@
             calculateRealtime();
         }
 
+        function deleteEntriesByDate(dateKey) {
+            if (confirm(`Vuoi eliminare tutti i risultati della giornata del ${dateKey}?`)) {
+                let data = getData();
+                data = data.filter(item => {
+                    const dObj = item.id ? new Date(item.id) : new Date();
+                    const itemDateKey = dObj.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
+                    return itemDateKey !== dateKey;
+                });
+                saveData(data);
+            }
+        }
+
+        function toggleSelectAllResults(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('.result-checkbox');
+            checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+        }
+
+        function deleteSelectedResults() {
+            const checkboxes = document.querySelectorAll('.result-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Seleziona almeno un risultato da eliminare.');
+                return;
+            }
+
+            if (confirm(`Vuoi davvero eliminare ${checkboxes.length} risultati selezionati?`)) {
+                const selectedIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+                let data = getData();
+                
+                data = data.filter(item => !selectedIds.includes(item.id));
+                saveData(data);
+                
+                const master = document.getElementById('selectAllResults');
+                if (master) master.checked = false;
+            }
+        }
+
         function renderLeaderboard() {
             const list = document.getElementById('leaderboardList');
             const filterStage = document.getElementById('filterStage').value;
@@ -799,6 +846,9 @@
 
             data.sort((a, b) => b.hitFactor - a.hitFactor);
             list.innerHTML = '';
+
+            const master = document.getElementById('selectAllResults');
+            if (master) master.checked = false;
 
             if (data.length === 0) {
                 list.innerHTML = '<div class="text-center py-6 text-slate-600 text-xs">Nessun risultato registrato</div>';
@@ -816,16 +866,38 @@
 
             Object.keys(grouped).forEach(dateKey => {
                 const dateHeader = document.createElement('div');
-                dateHeader.className = 'text-xs font-bold text-amber-500 uppercase tracking-wider pt-2 pb-1 flex items-center gap-1.5 border-b border-slate-800/60 mb-2';
-                dateHeader.innerHTML = `<i class="fa-regular fa-calendar-days"></i> ${dateKey}`;
+                dateHeader.className = 'text-xs font-bold text-amber-500 uppercase tracking-wider pt-3 pb-1 flex items-center justify-between border-b border-slate-800/60 mb-2';
+                dateHeader.innerHTML = `
+                    <span class="flex items-center gap-1.5"><i class="fa-regular fa-calendar-days"></i> ${dateKey}</span>
+                    <button onclick="deleteEntriesByDate('${dateKey}')" class="text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 px-2 py-0.5 rounded text-[10px] font-semibold transition-colors flex items-center gap-1" title="Elimina giornata">
+                        <i class="fa-solid fa-trash-can"></i> Elimina giornata
+                    </button>
+                `;
                 list.appendChild(dateHeader);
 
                 grouped[dateKey].forEach((item, index) => {
+                    let badgeHtml = '';
+                    let borderClass = 'border-slate-800';
+
+                    if (index === 0) {
+                        badgeHtml = '<span class="text-base leading-none" title="1° Posto">🥇</span>';
+                        borderClass = 'border-amber-500/50 bg-amber-500/5';
+                    } else if (index === 1) {
+                        badgeHtml = '<span class="text-base leading-none" title="2° Posto">🥈</span>';
+                        borderClass = 'border-slate-400/50 bg-slate-400/5';
+                    } else if (index === 2) {
+                        badgeHtml = '<span class="text-base leading-none" title="3° Posto">🥉</span>';
+                        borderClass = 'border-amber-700/50 bg-amber-700/5';
+                    } else {
+                        badgeHtml = `<span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center">${index + 1}</span>`;
+                    }
+
                     const card = document.createElement('div');
-                    card.className = `bg-slate-950 border border-slate-800 p-3 rounded-xl flex items-center justify-between mb-2`;
+                    card.className = `bg-slate-950 border ${borderClass} p-3 rounded-xl flex items-center justify-between mb-2 transition-all`;
                     card.innerHTML = `
-                        <div class="flex items-center gap-3">
-                            <span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center">${index + 1}</span>
+                        <div class="flex items-center gap-2.5">
+                            <input type="checkbox" value="${item.id}" class="result-checkbox w-4 h-4 rounded bg-slate-900 border-slate-800 text-amber-500 focus:ring-0 cursor-pointer flex-shrink-0">
+                            <div class="w-6 h-6 flex items-center justify-center flex-shrink-0">${badgeHtml}</div>
                             <div>
                                 <div class="font-bold text-sm text-slate-200">${item.nome}</div>
                                 <div class="text-[10px] text-slate-500 flex gap-2">
@@ -962,15 +1034,19 @@
             reader.onload = function(e) {
                 try {
                     const importedObj = JSON.parse(e.target.result);
-                    if (confirm("Vuoi caricare i risultati di questa sessione? I tiratori e gli stage attuali rimarranno invariati.")) {
-                        // Carica SOLO i risultati, senza sovrascrivere o unire tiratori e stage locali
-                        if (importedObj.results) {
-                            localStorage.setItem('hf_data', JSON.stringify(importedObj.results));
+                    if (confirm("Vuoi importare e unire i risultati di questa sessione con quelli esistenti?")) {
+                        if (importedObj.results && Array.isArray(importedObj.results)) {
+                            const currentData = getData();
+                            const existingIds = new Set(currentData.map(d => d.id));
+                            const newEntries = importedObj.results.filter(d => !existingIds.has(d.id));
+                            
+                            const mergedData = [...currentData, ...newEntries];
+                            localStorage.setItem('hf_data', JSON.stringify(mergedData));
                         }
 
                         renderLeaderboard();
                         updateFilterOptions();
-                        alert("Risultati caricati con successo!");
+                        alert("Risultati uniti e caricati con successo!");
                     }
                 } catch (err) {
                     alert("Errore durante il caricamento del file. Assicurati che sia un file JSON di backup valido.");

@@ -281,6 +281,17 @@
                 <button onclick="confirmNewShooterFromModal()" class="bg-amber-500 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs hover:bg-amber-400">Aggiungi</button>
             </div>
 
+            <!-- Azioni di gruppo / Controlli Selezione Tiratori -->
+            <div class="flex items-center justify-between text-xs text-slate-400 px-1 pt-1">
+                <label class="flex items-center gap-2 cursor-pointer hover:text-slate-200">
+                    <input type="checkbox" id="selectAllShooters" onclick="toggleSelectAllShooters(this)" class="w-4 h-4 rounded bg-slate-950 border-slate-800 text-amber-500 focus:ring-0 cursor-pointer">
+                    <span>Seleziona tutti</span>
+                </label>
+                <button onclick="deleteSelectedShooters()" class="bg-rose-950/60 hover:bg-rose-900/60 text-rose-400 font-semibold px-3 py-1.5 rounded-lg transition-colors flex items-center gap-1.5">
+                    <i class="fa-solid fa-trash-can text-xs"></i> Elimina selezionati
+                </button>
+            </div>
+
             <div id="shootersList" class="space-y-2 max-h-60 overflow-y-auto pr-1"></div>
             <div class="pt-2">
                 <button onclick="closeManageShootersModal()" class="w-full bg-slate-800 text-slate-300 font-semibold py-2.5 rounded-xl text-xs">Chiudi</button>
@@ -389,6 +400,44 @@
             renderStagesList();
         }
 
+        function editStage(oldName) {
+            const newName = prompt("Modifica il nome dello stage:", oldName);
+            if (newName === null) return; // Annullato
+
+            const trimmedName = newName.trim();
+            if (!trimmedName) {
+                alert("Il nome dello stage non può essere vuoto.");
+                return;
+            }
+
+            let stages = getStages();
+            if (stages.includes(trimmedName) && trimmedName !== oldName) {
+                alert("Esiste già uno stage con questo nome.");
+                return;
+            }
+
+            // 1. Aggiorna la lista degli stage
+            stages = stages.map(s => s === oldName ? trimmedName : s);
+            saveStages(stages);
+
+            // 2. Aggiorna anche i risultati salvati che facevano riferimento a questo stage
+            let data = getData();
+            let dataUpdated = false;
+            data.forEach(item => {
+                if (item.stage === oldName) {
+                    item.stage = trimmedName;
+                    dataUpdated = true;
+                }
+            });
+            if (dataUpdated) {
+                saveData(data);
+            }
+
+            renderStagesSelect(trimmedName);
+            renderStagesList();
+            renderLeaderboard();
+        }
+
         function deleteStage(stageName) {
             let stages = getStages();
             if (stages.length <= 1) {
@@ -409,12 +458,20 @@
             const stages = getStages();
             container.innerHTML = '';
 
+            if (stages.length === 0) {
+                container.innerHTML = '<div class="text-center py-4 text-slate-600 text-xs">Nessuno stage salvato</div>';
+                return;
+            }
+
             stages.forEach(s => {
                 const div = document.createElement('div');
                 div.className = 'bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-sm';
                 div.innerHTML = `
-                    <span class="font-medium text-slate-200">${s}</span>
-                    <button onclick="deleteStage('${s}')" class="text-slate-600 hover:text-rose-400 p-1 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    <span class="font-medium text-slate-200 truncate pr-2">${s}</span>
+                    <div class="flex items-center gap-1 flex-shrink-0">
+                        <button onclick="editStage('${s}')" class="text-slate-600 hover:text-amber-400 p-1 transition-colors" title="Modifica"><i class="fa-solid fa-pen text-xs"></i></button>
+                        <button onclick="deleteStage('${s}')" class="text-slate-600 hover:text-rose-400 p-1 transition-colors" title="Elimina"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    </div>
                 `;
                 container.appendChild(div);
             });
@@ -482,10 +539,39 @@
             }
         }
 
+        function toggleSelectAllShooters(masterCheckbox) {
+            const checkboxes = document.querySelectorAll('.shooter-checkbox');
+            checkboxes.forEach(cb => cb.checked = masterCheckbox.checked);
+        }
+
+        function deleteSelectedShooters() {
+            const checkboxes = document.querySelectorAll('.shooter-checkbox:checked');
+            if (checkboxes.length === 0) {
+                alert('Seleziona almeno un tiratore da eliminare.');
+                return;
+            }
+
+            if (confirm(`Vuoi davvero eliminare ${checkboxes.length} tiratori selezionati?`)) {
+                const selectedNames = Array.from(checkboxes).map(cb => cb.value);
+                let shooters = getShooters();
+                
+                shooters = shooters.filter(s => !selectedNames.includes(s));
+                saveShooters(shooters);
+                
+                const master = document.getElementById('selectAllShooters');
+                if (master) master.checked = false;
+
+                renderShootersList();
+            }
+        }
+
         function renderShootersList() {
             const container = document.getElementById('shootersList');
             const shooters = getShooters();
             container.innerHTML = '';
+
+            const master = document.getElementById('selectAllShooters');
+            if (master) master.checked = false;
 
             if (shooters.length === 0) {
                 container.innerHTML = '<div class="text-center py-4 text-slate-600 text-xs">Nessun tiratore salvato</div>';
@@ -496,8 +582,11 @@
                 const div = document.createElement('div');
                 div.className = 'bg-slate-950 border border-slate-800 p-2.5 rounded-xl flex items-center justify-between text-sm';
                 div.innerHTML = `
-                    <span class="font-medium text-slate-200">${s}</span>
-                    <button onclick="deleteShooter('${s}')" class="text-slate-600 hover:text-rose-400 p-1 transition-colors"><i class="fa-solid fa-trash-can text-xs"></i></button>
+                    <div class="flex items-center gap-2.5 overflow-hidden">
+                        <input type="checkbox" value="${s}" class="shooter-checkbox w-4 h-4 rounded bg-slate-950 border-slate-800 text-amber-500 focus:ring-0 cursor-pointer">
+                        <span class="font-medium text-slate-200 truncate">${s}</span>
+                    </div>
+                    <button onclick="deleteShooter('${s}')" class="text-slate-600 hover:text-rose-400 p-1 transition-colors flex-shrink-0"><i class="fa-solid fa-trash-can text-xs"></i></button>
                 `;
                 container.appendChild(div);
             });
@@ -669,7 +758,6 @@
                 }
             }
 
-            // Funzione di supporto per estrarre numeri vicini a una parola chiave
             function extractNumber(keywords) {
                 for (let kw of keywords) {
                     const regex = new RegExp(`(\\d+)\\s*(?:${kw})|(?:${kw})\\s*(\\d+)`, 'i');
@@ -681,7 +769,6 @@
                 return null;
             }
 
-            // 3. Estrazione Alfa, Charlie, Delta, Miss
             const alfaVal = extractNumber(['alfa', 'alfe', 'alfaa']);
             if (alfaVal !== null) document.getElementById('inputAlfa').value = alfaVal;
 
@@ -694,7 +781,6 @@
             const missVal = extractNumber(['miss', 'miz', 'fallito', 'fuori']);
             if (missVal !== null) document.getElementById('inputMiss').value = missVal;
 
-            // 4. Estrazione Tempo
             const timeRegex = /(?:tempo|secondi|sec)\s*([\d]+[.,]?\d*)/i;
             const timeMatch = text.match(timeRegex);
             if (timeMatch) {
@@ -782,6 +868,7 @@
             document.getElementById('editNome').value = item.nome;
             document.getElementById('editAlfa').value = item.alfa;
             document.getElementById('editCharlie').value = item.charlie;
+            document.getElementById('editDict').value = item.delta; // not used, fix below
             document.getElementById('editDelta').value = item.delta;
             document.getElementById('editMiss').value = item.miss;
             document.getElementById('editTempo').value = item.tempo;
@@ -873,14 +960,12 @@
                             localStorage.setItem('hf_data', JSON.stringify(importedObj.results));
                         }
 
-                        // Unione sicura dei tiratori senza perdere i nomi già registrati sul dispositivo
                         if (importedObj.shooters && Array.isArray(importedObj.shooters)) {
                             const currentShooters = getShooters();
                             const mergedShooters = [...new Set([...currentShooters, ...importedObj.shooters])];
                             localStorage.setItem('hf_shooters', JSON.stringify(mergedShooters));
                         }
 
-                        // Unione sicura degli stage senza perdere quelli già registrati sul dispositivo
                         if (importedObj.stages && Array.isArray(importedObj.stages)) {
                             const currentStages = getStages();
                             const mergedStages = [...new Set([...currentStages, ...importedObj.stages])];

@@ -183,7 +183,7 @@
                     </button>
                 </div>
 
-                <div id="leaderboardList" class="space-y-2"></div>
+                <div id="leaderboardList" class="space-y-4"></div>
 
                 <div class="pt-2 flex flex-col gap-2">
                     <div class="flex gap-2">
@@ -835,6 +835,7 @@
             }
         }
 
+        // --- RAGGRUPPAMENTO PER DATA E PER STAGE ---
         function renderLeaderboard() {
             const list = document.getElementById('leaderboardList');
             const filterStage = document.getElementById('filterStage').value;
@@ -844,7 +845,6 @@
                 data = data.filter(d => d.stage === filterStage);
             }
 
-            data.sort((a, b) => b.hitFactor - a.hitFactor);
             list.innerHTML = '';
 
             const master = document.getElementById('selectAllResults');
@@ -855,68 +855,88 @@
                 return;
             }
 
-            // Raggruppamento per Data
+            // 1. Raggruppamento primario per Data e secondario per Stage
             const grouped = {};
             data.forEach(item => {
                 const dObj = item.id ? new Date(item.id) : new Date();
                 const dateKey = dObj.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' });
-                if (!grouped[dateKey]) grouped[dateKey] = [];
-                grouped[dateKey].push(item);
+                
+                if (!grouped[dateKey]) grouped[dateKey] = {};
+                if (!grouped[dateKey][item.stage]) grouped[dateKey][item.stage] = [];
+                
+                grouped[dateKey][item.stage].push(item);
             });
 
+            // 2. Rendering grafico organizzato a due livelli
             Object.keys(grouped).forEach(dateKey => {
                 const dateHeader = document.createElement('div');
-                dateHeader.className = 'text-xs font-bold text-amber-500 uppercase tracking-wider pt-3 pb-1 flex items-center justify-between border-b border-slate-800/60 mb-2';
+                dateHeader.className = 'text-xs font-bold text-amber-500 uppercase tracking-wider pt-2 pb-1 flex items-center justify-between border-b border-amber-500/30 mb-2';
                 dateHeader.innerHTML = `
-                    <span class="flex items-center gap-1.5"><i class="fa-regular fa-calendar-days"></i> ${dateKey}</span>
-                    <button onclick="deleteEntriesByDate('${dateKey}')" class="text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 px-2 py-0.5 rounded text-[10px] font-semibold transition-colors flex items-center gap-1" title="Elimina giornata">
+                    <span class="flex items-center gap-1.5"><i class="fa-regular fa-calendar-days text-sm"></i> ${dateKey}</span>
+                    <button onclick="deleteEntriesByDate('${dateKey}')" class="text-rose-400 hover:text-rose-300 bg-rose-950/40 hover:bg-rose-900/60 px-2 py-0.5 rounded text-[10px] font-semibold transition-colors flex items-center gap-1" title="Elimina intera giornata">
                         <i class="fa-solid fa-trash-can"></i> Elimina giornata
                     </button>
                 `;
                 list.appendChild(dateHeader);
 
-                grouped[dateKey].forEach((item, index) => {
-                    let badgeHtml = '';
-                    let borderClass = 'border-slate-800';
+                // Ciclo degli stage per la data corrente
+                Object.keys(grouped[dateKey]).forEach(stageKey => {
+                    const stageBlock = document.createElement('div');
+                    stageBlock.className = 'pl-2 mb-3 border-l-2 border-slate-800 space-y-1.5';
+                    
+                    const stageHeader = document.createElement('div');
+                    stageHeader.className = 'text-[11px] font-extrabold text-slate-400 uppercase tracking-wide flex items-center gap-1.5 py-0.5';
+                    stageHeader.innerHTML = `<i class="fa-solid fa-layer-group text-amber-400/80 text-[10px]"></i> ${stageKey}`;
+                    stageBlock.appendChild(stageHeader);
 
-                    if (index === 0) {
-                        badgeHtml = '<span class="text-base leading-none" title="1° Posto">🥇</span>';
-                        borderClass = 'border-amber-500/50 bg-amber-500/5';
-                    } else if (index === 1) {
-                        badgeHtml = '<span class="text-base leading-none" title="2° Posto">🥈</span>';
-                        borderClass = 'border-slate-400/50 bg-slate-400/5';
-                    } else if (index === 2) {
-                        badgeHtml = '<span class="text-base leading-none" title="3° Posto">🥉</span>';
-                        borderClass = 'border-amber-700/50 bg-amber-700/5';
-                    } else {
-                        badgeHtml = `<span class="w-6 h-6 rounded-full bg-slate-800 text-slate-400 text-xs font-bold flex items-center justify-center">${index + 1}</span>`;
-                    }
+                    // Ordina i tiratori di questo specifico stage per Hit Factor decrescente
+                    const stageItems = grouped[dateKey][stageKey];
+                    stageItems.sort((a, b) => b.hitFactor - a.hitFactor);
 
-                    const card = document.createElement('div');
-                    card.className = `bg-slate-950 border ${borderClass} p-3 rounded-xl flex items-center justify-between mb-2 transition-all`;
-                    card.innerHTML = `
-                        <div class="flex items-center gap-2.5">
-                            <input type="checkbox" value="${item.id}" class="result-checkbox w-4 h-4 rounded bg-slate-900 border-slate-800 text-amber-500 focus:ring-0 cursor-pointer flex-shrink-0">
-                            <div class="w-6 h-6 flex items-center justify-center flex-shrink-0">${badgeHtml}</div>
-                            <div>
-                                <div class="font-bold text-sm text-slate-200">${item.nome}</div>
-                                <div class="text-[10px] text-slate-500 flex gap-2">
-                                    <span>${item.stage}</span>
-                                    <span>A:${item.alfa} C:${item.charlie} D:${item.delta} M:${item.miss}</span>
-                                    <span>${item.tempo.toFixed(2)}s</span>
+                    stageItems.forEach((item, index) => {
+                        let badgeHtml = '';
+                        let borderClass = 'border-slate-800';
+
+                        if (index === 0) {
+                            badgeHtml = '<span class="text-base leading-none" title="1° Posto">🥇</span>';
+                            borderClass = 'border-amber-500/50 bg-amber-500/5';
+                        } else if (index === 1) {
+                            badgeHtml = '<span class="text-base leading-none" title="2° Posto">🥈</span>';
+                            borderClass = 'border-slate-400/50 bg-slate-400/5';
+                        } else if (index === 2) {
+                            badgeHtml = '<span class="text-base leading-none" title="3° Posto">🥉</span>';
+                            borderClass = 'border-amber-700/50 bg-amber-700/5';
+                        } else {
+                            badgeHtml = `<span class="w-5 h-5 rounded-full bg-slate-800 text-slate-400 text-[10px] font-bold flex items-center justify-center">${index + 1}</span>`;
+                        }
+
+                        const card = document.createElement('div');
+                        card.className = `bg-slate-950 border ${borderClass} p-2.5 rounded-xl flex items-center justify-between transition-all`;
+                        card.innerHTML = `
+                            <div class="flex items-center gap-2.5 overflow-hidden">
+                                <input type="checkbox" value="${item.id}" class="result-checkbox w-4 h-4 rounded bg-slate-900 border-slate-800 text-amber-500 focus:ring-0 cursor-pointer flex-shrink-0">
+                                <div class="w-5 h-5 flex items-center justify-center flex-shrink-0">${badgeHtml}</div>
+                                <div class="truncate">
+                                    <div class="font-bold text-sm text-slate-200 truncate">${item.nome}</div>
+                                    <div class="text-[10px] text-slate-500 flex gap-2">
+                                        <span>A:${item.alfa} C:${item.charlie} D:${item.delta} M:${item.miss}</span>
+                                        <span>${item.tempo.toFixed(2)}s</span>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                        <div class="flex items-center gap-3">
-                            <div class="text-right">
-                                <div class="text-sm font-extrabold text-amber-400">${item.hitFactor.toFixed(4)}</div>
-                                <div class="text-[10px] text-slate-500">${item.punti} pt</div>
+                            <div class="flex items-center gap-2.5 flex-shrink-0">
+                                <div class="text-right">
+                                    <div class="text-sm font-extrabold text-amber-400">${item.hitFactor.toFixed(4)}</div>
+                                    <div class="text-[10px] text-slate-500">${item.punti} pt</div>
+                                </div>
+                                <button onclick="openEditModal(${item.id})" class="text-slate-600 hover:text-amber-400 p-1 transition-colors"><i class="fa-solid fa-pen text-xs"></i></button>
+                                <button onclick="deleteEntry(${item.id})" class="text-slate-600 hover:text-rose-400 p-1 transition-colors"><i class="fa-solid fa-trash text-xs"></i></button>
                             </div>
-                            <button onclick="openEditModal(${item.id})" class="text-slate-600 hover:text-amber-400 p-1"><i class="fa-solid fa-pen text-xs"></i></button>
-                            <button onclick="deleteEntry(${item.id})" class="text-slate-600 hover:text-rose-400 p-1"><i class="fa-solid fa-trash text-xs"></i></button>
-                        </div>
-                    `;
-                    list.appendChild(card);
+                        `;
+                        stageBlock.appendChild(card);
+                    });
+
+                    list.appendChild(stageBlock);
                 });
             });
         }

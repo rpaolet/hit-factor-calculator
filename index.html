@@ -868,10 +868,24 @@
             reader.onload = function(e) {
                 try {
                     const importedObj = JSON.parse(e.target.result);
-                    if (confirm("Caricando questa sessione i dati attuali verranno sovrascritti. Continuare?")) {
-                        if (importedObj.results) localStorage.setItem('hf_data', JSON.stringify(importedObj.results));
-                        if (importedObj.shooters) localStorage.setItem('hf_shooters', JSON.stringify(importedObj.shooters));
-                        if (importedObj.stages) localStorage.setItem('hf_stages', JSON.stringify(importedObj.stages));
+                    if (confirm("Vuoi caricare questa sessione? I nuovi tiratori e stage verranno aggiunti a quelli esistenti.")) {
+                        if (importedObj.results) {
+                            localStorage.setItem('hf_data', JSON.stringify(importedObj.results));
+                        }
+
+                        // Unione sicura dei tiratori senza perdere i nomi già registrati sul dispositivo
+                        if (importedObj.shooters && Array.isArray(importedObj.shooters)) {
+                            const currentShooters = getShooters();
+                            const mergedShooters = [...new Set([...currentShooters, ...importedObj.shooters])];
+                            localStorage.setItem('hf_shooters', JSON.stringify(mergedShooters));
+                        }
+
+                        // Unione sicura degli stage senza perdere quelli già registrati sul dispositivo
+                        if (importedObj.stages && Array.isArray(importedObj.stages)) {
+                            const currentStages = getStages();
+                            const mergedStages = [...new Set([...currentStages, ...importedObj.stages])];
+                            localStorage.setItem('hf_stages', JSON.stringify(mergedStages));
+                        }
 
                         renderStagesSelect();
                         renderShootersSelect();
